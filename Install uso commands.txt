@@ -1,0 +1,35 @@
+sudo apt-get install build-essential libncursesw5-dev libreadline5-dev libssl-dev libgdbm-dev libc6-dev libsqlite3-dev tk-dev
+sudo apt-get install libssl-dev
+
+### Install python3.5
+
+wget http://www.python.org/ftp/python/3.5.3/Python-3.5.3.tbz
+tar -xvzf Python-3.5.3.tbz
+cd Python-3.5.3
+./configure
+make test
+sudo make install
+
+### Install Discord.py
+
+# Be sure to have pip(3) installed to do this command
+
+python3.5 -m pip install -U discord.py
+
+### Installing libraries
+
+sudo apt-get install git
+
+git clone https://github.com/khazhyk/osuapi
+cd osupai-master
+python3.5 setup.py install
+cd ..
+sudo rm -rf osupai-master
+
+git clone https://github.com/Francesco149/oppai
+cd oppai-master/pyoppai
+sudo python3.5 setup.py install
+cd ../..
+sudo rm -rf oppai-master
+
+#You might have to install Memcached as well
