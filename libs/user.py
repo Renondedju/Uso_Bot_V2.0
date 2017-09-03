@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sqlite3
 
 class User():
@@ -78,8 +79,6 @@ class User():
 			connexion.close()
 			return #No coresponding user
 		
-		print(result_list)
-		
 		self.uso_id = result_list[0]['uso_id']
 		self.discord_id = result_list[0]['discord_id']
 		self.osu_name = result_list[0]['osu_name']
@@ -132,7 +131,6 @@ class User():
 		self.last_irc_patch_used = result_list[0]['last_irc_patch_used']
 		self.last_time_played = result_list[0]['last_time_played'] #timestamp
 		
-		
 		connexion.close()
 
 		return
@@ -142,5 +140,63 @@ class User():
 		print ("nothing for now ...")
 		#TODO
 
+	def print_user_profile(self):
+		"""Clean output to see this user parameters"""
+
+		print("---- Global informations ----")
+		print("|")
+		print("|-osu_id 	 = {}".format(self.osu_id))
+		print("|-uso_id 	 = {}".format(self.uso_id))
+		print("|-discord_id = {}".format(self.discord_id))
+		print("|-osu_name 	 = {}".format(self.osu_name))
+		print("|-rank 		 = {}".format(self.rank))
+		print("|")
+		print("---- User performances ----")
+		print("|")
+		print("|-accuracy_average 	= {}".format(self.accuracy_average))
+		print("|-pp_average 		= {}".format(self.pp_average))
+		print("|-bpm_low 			= {}".format(self.bpm_low))
+		print("|-bpm_average 		= {}".format(self.bpm_average))
+		print("|-bpm_high 			= {}".format(self.bpm_high))
+		print("|-od_average 		= {}".format(self.od_average))
+		print("|-ar_average 		= {}".format(self.ar_average))
+		print("|-cs_average 		= {}".format(self.cs_average))
+		print("|-len_average 		= {}".format(self.len_average))
+		print("|")
+		print("---- Mods playrate ----")
+		print("|")
+		print("|-Nomod 	= {}%".format(self.Nomod_playrate))
+		print("|-HR 		= {}%".format(self.HR_playrate))
+		print("|-HD 		= {}%".format(self.HD_playrate))
+		print("|-DT 		= {}%".format(self.DT_playrate))
+		print("|-DTHD 		= {}%".format(self.DTHD_playrate))
+		print("|-DTHR 		= {}%".format(self.DTHR_playrate))
+		print("|-HRHD 		= {}%".format(self.HRHD_playrate))
+		print("|-DTHRHD 	= {}%".format(self.DTHRHD_playrate))
+		print("|")
+		print("---- Playstyle ----")
+		print("|")
+		print("|-playstyle 	= {}".format(self.playstyle))
+		print("|")
+		print("---- Api settings ----")
+		print("|")
+		print("|-api_key 		= {}".format(self.api_key))
+		print("|-request_rate 	= {} requests/min".format(self.request_rate))
+		print("|")
+		print("---- Money bonuses ----")
+		print("|")
+		print("|-requests_max 	= {} beatmaps/request".format(self.requests_max))
+		print("|-donations 	= {}€".format(self.donations))
+		print("|")
+		print("---- Patch ----")
+		print("|")
+		print("|-last_discord_patch_used 	= {}".format(self.last_discord_patch_used))
+		print("|-last_irc_patch_used 		= {}".format(self.last_irc_patch_used))
+		print("|-last_time_played 			= {}".format(self.last_time_played))
+		print("|")
+
+
+		return
 
 user = User(54, "../UsoDatabase.db")
+user.print_user_profile()
