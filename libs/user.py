@@ -137,11 +137,100 @@ class User():
 
 	def save_user_profile(self, database_path):
 		""" Saves the user profile into a given database """
-		print ("nothing for now ...")
-		#TODO
+		if not self.osu_id:
+			return
+
+		connexion = sqlite3.connect(database_path)
+		cursor = connexion.cursor()
+
+		data = [self.discord_id,
+			self.osu_name,
+			self.rank,
+			self.accuracy_average,
+			self.pp_average,
+			self.bpm_low,
+			self.bpm_average,
+			self.bpm_high,
+			self.od_average,
+			self.ar_average,
+			self.cs_average,
+			self.len_average,
+			self.Nomod_playrate,
+			self.HR_playrate,
+			self.HD_playrate,
+			self.DT_playrate,
+			self.DTHD_playrate,
+			self.DTHR_playrate,
+			self.HRHD_playrate,
+			self.DTHRHD_playrate,
+			self.Nomod_recommended,
+			self.HR_recommended,
+			self.HD_recommended,
+			self.DTHR_recommended,
+			self.DTHD_recommended,
+			self.DTHR_recommended, 
+			self.HRHD_recommended,
+			self.playstyle,
+			self.api_key,
+			self.request_rate,
+			self.requests_max,
+			self.donations,
+			self.last_discord_patch_used,
+			self.last_irc_patch_used,
+			self.last_time_played,
+			self.osu_id,]
+
+		cursor.execute("""UPDATE users SET 
+			discord_id 				= ?,
+			osu_name 				= ?,
+			rank 					= ?,
+			accuracy_average 		= ?,
+			pp_average 				= ?,
+			bpm_low 				= ?,
+			bpm_average 			= ?,
+			bpm_high 				= ?,
+			od_average 				= ?,
+			ar_average 				= ?,
+			cs_average 				= ?,
+			len_average 			= ?,
+			Nomod_playrate 			= ?,
+			HR_playrate 			= ?,
+			HD_playrate 			= ?,
+			DT_playrate 			= ?,
+			DTHD_playrate 			= ?,
+			DTHR_playrate 			= ?,
+			HRHD_playrate 			= ?,
+			DTHRHD_playrate 		= ?,
+			Nomod_recommended 		= ?,
+			HR_recommended 			= ?,
+			HD_recommended 			= ?,
+			DTHR_recommended 		= ?,
+			DTHD_recommended 		= ?,
+			DTHR_recommended 		= ?, 
+			HRHD_recommended 		= ?,
+			playstyle 				= ?,
+			api_key 				= ?,
+			request_rate 			= ?,
+			requests_max 			= ?,
+			donations 				= ?,
+			last_discord_patch_used = ?,
+			last_irc_patch_used 	= ?,
+			last_time_played 		= ?
+
+			WHERE osu_id = ?
+			""", data)
+
+		connexion.commit()
+		connexion.close()
+
+		return
 
 	def print_user_profile(self):
 		"""Clean output to see this user parameters"""
+
+		if self.uso_id == None:
+			print('User empty')
+			return
 
 		print("---- Global informations ----")
 		print("|")
@@ -198,5 +287,7 @@ class User():
 
 		return
 
-user = User(54, "../UsoDatabase.db")
-user.print_user_profile()
+# --- Test lines !
+#user.print_user_profile()
+#user.od_average = 50
+#user.save_user_profile("../UsoDatabase.db")
