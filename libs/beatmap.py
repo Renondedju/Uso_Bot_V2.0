@@ -15,7 +15,7 @@ class Beatmap():
 		self.aim_stars = 0
 		self.speed_stars = 0
 
-		self.playstyle = self.speed_stars/self.difficultyrating # 0 = aim (jumps) , 1 = speed (stream)
+		self.playstyle = 0.5 # 0 = aim (jumps) , 1 = speed (stream)
 
 		self.diff_size = None
 		self.diff_overall = None
@@ -70,6 +70,8 @@ class Beatmap():
 		self.PP_97_DTHR = None
 		self.PP_97_HRHD = None
 		self.PP_97_DTHRHD = None
+
+		self.load_beatmap(database_path)
 
 	def load_beatmap(self, database_path):
 		""" Loading a beatmap from the database """
@@ -160,7 +162,7 @@ class Beatmap():
 	def save_beatmap(self, database_path):
 		""" Saves a beatmap into a given database """
 
-		if not self.discord_id:
+		if not self.beatmap_id:
 			return
 
 		connexion = sqlite3.connect(database_path)
@@ -287,3 +289,88 @@ class Beatmap():
 		connexion.close()
 
 		return
+
+	def print_beatmap(self):
+		"""Clean output to see this user parameters"""
+
+		if self.beatmap_id == None:
+			print('Beatmap empty')
+			return
+
+		print("---- Global informations ----")
+		print("|")
+		print("|-uso_id				= {}".format(self.uso_id))
+		print("|-beatmapset_id		= {}".format(self.beatmapset_id))
+		print("|-bpm				= {}".format(self.bpm))
+		print("|-difficultyrating	= {}".format(self.difficultyrating))
+		print("|-aim_stars			= {}".format(self.aim_stars))
+		print("|-speed_stars		= {}".format(self.speed_stars))
+		print("|-playstyle			= {}".format(self.playstyle))
+		print("|-diff_size			= {}".format(self.diff_size))
+		print("|-diff_overall		= {}".format(self.diff_overall))
+		print("|-diff_approach		= {}".format(self.diff_approach))
+		print("|-diff_drain			= {}".format(self.diff_drain))
+		print("|-hit_length			= {}".format(self.hit_length))
+		print("|-total_length		= {}".format(self.total_length))
+		print("|-max_combo			= {}".format(self.max_combo))
+		print("|-artist				= {}".format(self.artist))
+		print("|-creator			= {}".format(self.creator))
+		print("|-title				= {}".format(self.title))
+		print("|-version			= {}".format(self.version))
+		print("|-mode				= {}".format(self.mode))
+		print("|-tags				= {}".format(self.tags))
+		print("|-approved 			= {}".format(self.approved))
+		print("|-approved_date		= {}".format(self.approved_date))
+		print("|-last_update		= {}".format(self.last_update))
+		print("|")
+		print("---- PP stats 100 ----")
+		print("|")
+		print("|-PP_100 			= {}".format(self.PP_100))
+		print("|-PP_100_HR 			= {}".format(self.PP_100_HR))
+		print("|-PP_100_HD 			= {}".format(self.PP_100_HD))
+		print("|-PP_100_DT 			= {}".format(self.PP_100_DT))
+		print("|-PP_100_DTHD 		= {}".format(self.PP_100_DTHD))
+		print("|-PP_100_DTHR 		= {}".format(self.PP_100_DTHR))
+		print("|-PP_100_HRHD 		= {}".format(self.PP_100_HRHD))
+		print("|-PP_100_DTHRHD 		= {}".format(self.PP_100_DTHRHD))
+		print("|")
+		print("---- PP stats 99  ----")
+		print("|")
+		print("|-PP_99 				= {}".format(self.PP_99))
+		print("|-PP_99_HR 			= {}".format(self.PP_99_HR))
+		print("|-PP_99_HD 			= {}".format(self.PP_99_HD))
+		print("|-PP_99_DT 			= {}".format(self.PP_99_DT))
+		print("|-PP_99_DTHD 		= {}".format(self.PP_99_DTHD))
+		print("|-PP_99_DTHR 		= {}".format(self.PP_99_DTHR))
+		print("|-PP_99_HRHD 		= {}".format(self.PP_99_HRHD))
+		print("|-PP_99_DTHRHD 		= {}".format(self.PP_99_DTHRHD))
+		print("|")
+		print("---- PP stats 98  ----")
+		print("|")
+		print("|-PP_98 				= {}".format(self.PP_98))
+		print("|-PP_98_HR 			= {}".format(self.PP_98_HR))
+		print("|-PP_98_HD 			= {}".format(self.PP_98_HD))
+		print("|-PP_98_DT 			= {}".format(self.PP_98_DT))
+		print("|-PP_98_DTHD 		= {}".format(self.PP_98_DTHD))
+		print("|-PP_98_DTHR 		= {}".format(self.PP_98_DTHR))
+		print("|-PP_98_HRHD 		= {}".format(self.PP_98_HRHD))
+		print("|-PP_98_DTHRHD 		= {}".format(self.PP_98_DTHRHD))
+		print("|")
+		print("---- PP stats 97  ----")
+		print("|")
+		print("|-PP_97 				= {}".format(self.PP_97))
+		print("|-PP_97_HR 			= {}".format(self.PP_97_HR))
+		print("|-PP_97_HD 			= {}".format(self.PP_97_HD))
+		print("|-PP_97_DT 			= {}".format(self.PP_97_DT))
+		print("|-PP_97_DTHD 		= {}".format(self.PP_97_DTHD))
+		print("|-PP_97_DTHR 		= {}".format(self.PP_97_DTHR))
+		print("|-PP_97_HRHD 		= {}".format(self.PP_97_HRHD))
+		print("|-PP_97_DTHRHD 		= {}".format(self.PP_97_DTHRHD))
+		print("|")
+
+		return
+
+# beatmap = Beatmap(0, "../Database.db")
+# beatmap.diff_size = 5741
+# beatmap.save_beatmap("../Database.db")
+# beatmap.print_beatmap()
