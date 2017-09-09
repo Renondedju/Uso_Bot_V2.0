@@ -13,5 +13,6 @@
     "beatmapPath": "/root/UsoBot/beatmaps/beatmaps/", 
     "ownerDiscordID": "", 
     "discordToken": "", 
-    "inviteLink": ""
+    "inviteLink": "",
+    "webhookUrl": ""
 }
