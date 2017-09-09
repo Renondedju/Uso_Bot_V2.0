@@ -6,6 +6,11 @@ class User():
 	""" User informations """
 
 	def __init__(self, osu_id, database_path):
+		
+		#Logs infos
+		self.discord_name = None
+		self.discord_icon = None
+
 		#Global informations
 		self.osu_id = osu_id
 		self.uso_id = None
@@ -62,9 +67,14 @@ class User():
 
 		self.load_user_profile(database_path)
 
+	def set_logs_infos(self, discord_name, discord_icon):
+		""" Seting discord_name and discord_icon"""
+		self.discord_icon = discord_icon
+		self.discord_name = discord_name
+
 	def load_user_profile(self, database_path):
 		""" Loading a user profile from the database """
-		if not self.osu_id:
+		if not self.osu_id or not database_path:
 			return
 
 		connexion = sqlite3.connect(database_path)
@@ -138,7 +148,7 @@ class User():
 
 	def save_user_profile(self, database_path):
 		""" Saves the user profile into a given database """
-		if not self.osu_id:
+		if not self.osu_id or not database_path:
 			return
 
 		connexion = sqlite3.connect(database_path)
@@ -227,6 +237,10 @@ class User():
 		return
 
 	def update_user_stats(self, osu_id):
+
+		if not osu_id:
+			return
+
 		userinfo = get_user("Todo key load", osu_id, 0)
 		self.osu_name = userinfo['username']
 		self.rank = int(userinfo['pp_rank'])
