@@ -1,68 +1,159 @@
 # -*- coding: utf-8 -*-
 
-"""
-uso_id
-beatmap_id
-beatmapset_id
+import sqlite3
 
-bpm
-difficultyrating (stars)
-aim_stars
-speed_stars
+class Beatmap():
 
-playstyle = speed/difficultyrating # 0 = aim (jumps) , 1 = speed (stream)
+	def __init__(self, beatmap_id, database_path):
 
-diff_size
-diff_overall
-diff_approach
-diff_drain
-hit_length
-total_length
-max_combo
+		self.beatmap_id = beatmap_id
+		self.uso_id = result_list[0]['test']
+		self.beatmapset_id = result_list[0]['test']
 
-artist
-creator
-title
-version
-mode
-tags
-approved
-approved_date
-last_update
+		self.bpm = result_list[0]['test']
+		self.difficultyrating = 0
+		self.aim_stars = 0
+		self.speed_stars = 0
 
-100_PP
-100_HR_PP
-100_HD_PP
-100_DT_PP
-100_DTHD_PP
-100_DTHR_PP
-100_HRHD_PP
-100_DTHRHD_PP
+		self.playstyle = self.speed_stars/self.difficultyrating # 0 = aim (jumps) , 1 = speed (stream)
 
-99_PP
-99_HR_PP
-99_HD_PP
-99_DT_PP
-99_DTHD_PP
-99_DTHR_PP
-99_HRHD_PP
-99_DTHRHD_PP
+		self.diff_size = result_list[0]['test']
+		self.diff_overall = result_list[0]['test']
+		self.diff_approach = result_list[0]['test']
+		self.diff_drain = result_list[0]['test']
+		self.hit_length = result_list[0]['test']
+		self.total_length = result_list[0]['test']
+		self.max_combo = result_list[0]['test']
 
-98_PP
-98_HR_PP
-98_HD_PP
-98_DT_PP
-98_DTHD_PP
-98_DTHR_PP
-98_HRHD_PP
-98_DTHRHD_PP
+		self.artist = result_list[0]['test']
+		self.creator = result_list[0]['test']
+		self.title = result_list[0]['test']
+		self.version = result_list[0]['test']
+		self.mode = result_list[0]['test']
+		self.tags = result_list[0]['test']
+		self.approved = result_list[0]['test']
+		self.approved_date = result_list[0]['test']
+		self.last_update = result_list[0]['test']
 
-97_PP
-97_HR_PP
-97_HD_PP
-97_DT_PP
-97_DTHD_PP
-97_DTHR_PP
-97_HRHD_PP
-97_DTHRHD_PP
-"""
+		self.PP_100 = result_list[0]['test']
+		self.PP_100_HR = result_list[0]['test']
+		self.PP_100_HD = result_list[0]['test']
+		self.PP_100_DT = result_list[0]['test']
+		self.PP_100_DTHD = result_list[0]['test']
+		self.PP_100_DTHR = result_list[0]['test']
+		self.PP_100_HRHD = result_list[0]['test']
+		self.PP_100_DTHRHD = result_list[0]['test']
+
+		self.PP_99 = result_list[0]['test']
+		self.PP_99_HR = result_list[0]['test']
+		self.PP_99_HD = result_list[0]['test']
+		self.PP_99_DT = result_list[0]['test']
+		self.PP_99_DTHD = result_list[0]['test']
+		self.PP_99_DTHR = result_list[0]['test']
+		self.PP_99_HRHD = result_list[0]['test']
+		self.PP_99_DTHRHD = result_list[0]['test']
+
+		self.PP_98 = result_list[0]['test']
+		self.PP_98_HR = result_list[0]['test']
+		self.PP_98_HD = result_list[0]['test']
+		self.PP_98_DT = result_list[0]['test']
+		self.PP_98_DTHD = result_list[0]['test']
+		self.PP_98_DTHR = result_list[0]['test']
+		self.PP_98_HRHD = result_list[0]['test']
+		self.PP_98_DTHRHD = result_list[0]['test']
+
+		self.PP_97 = result_list[0]['test']
+		self.PP_97_HR = result_list[0]['test']
+		self.PP_97_HD = result_list[0]['test']
+		self.PP_97_DT = result_list[0]['test']
+		self.PP_97_DTHD = result_list[0]['test']
+		self.PP_97_DTHR = result_list[0]['test']
+		self.PP_97_HRHD = result_list[0]['test']
+		self.PP_97_DTHRHD = result_list[0]['test']
+
+	def load_beatmap(self, database_path):
+		""" Loading a beatmap from the database """
+
+		if not self.beatmap_id:
+			return
+
+		connexion = sqlite3.connect(database_path)
+		cursor = connexion.cursor()
+
+		query = cursor.execute("SELECT * FROM users WHERE beatmap_id = ?", [self.beatmap_id,])
+
+		colname = [ d[0] for d in query.description ]
+		result_list = [ dict(zip(colname, r)) for r in query.fetchall()]
+		
+		if len(result_list) == 0:
+			connexion.close()
+			return #No coresponding beatmap
+
+		self.uso_id 		= result_list[0]['uso_id']
+		self.beatmapset_id 	= result_list[0]['beatmapset_id']
+
+		self.bpm 				= result_list[0]['bpm']
+		self.difficultyrating 	= result_list[0]['difficultyrating']
+		self.aim_stars 			= result_list[0]['aim_stars']
+		self.speed_stars 		= result_list[0]['speed_stars']
+
+		self.playstyle = self.speed_stars/self.difficultyrating
+
+		self.diff_size 		= result_list[0]['diff_size']
+		self.diff_overall 	= result_list[0]['diff_overall']
+		self.diff_approach 	= result_list[0]['diff_approach']
+		self.diff_drain 	= result_list[0]['diff_drain']
+		self.hit_length 	= result_list[0]['hit_length']
+		self.total_length 	= result_list[0]['total_length']
+		self.max_combo 		= result_list[0]['max_combo']
+
+		self.artist 		= result_list[0]['artist']
+		self.creator 		= result_list[0]['creator']
+		self.title 			= result_list[0]['title']
+		self.version 		= result_list[0]['version']
+		self.mode 			= result_list[0]['mode']
+		self.tags 			= result_list[0]['tags']
+		self.approved 		= result_list[0]['approved']
+		self.approved_date 	= result_list[0]['approved_date']
+		self.last_update 	= result_list[0]['last_update']
+
+		self.PP_100 		= result_list[0]['PP_100']
+		self.PP_100_HR 		= result_list[0]['PP_100_HR']
+		self.PP_100_HD 		= result_list[0]['PP_100_HD']
+		self.PP_100_DT 		= result_list[0]['PP_100_DT']
+		self.PP_100_DTHD 	= result_list[0]['PP_100_DTHD']
+		self.PP_100_DTHR 	= result_list[0]['PP_100_DTHR']
+		self.PP_100_HRHD 	= result_list[0]['PP_100_HRHD']
+		self.PP_100_DTHRHD 	= result_list[0]['PP_100_DTHRHD']
+
+		self.PP_99 			= result_list[0]['PP_99']
+		self.PP_99_HR 		= result_list[0]['PP_99_HR']
+		self.PP_99_HD 		= result_list[0]['PP_99_HD']
+		self.PP_99_DT 		= result_list[0]['PP_99_DT']
+		self.PP_99_DTHD 	= result_list[0]['PP_99_DTHD']
+		self.PP_99_DTHR 	= result_list[0]['PP_99_DTHR']
+		self.PP_99_HRHD 	= result_list[0]['PP_99_HRHD']
+		self.PP_99_DTHRHD 	= result_list[0]['PP_99_DTHRHD']
+
+		self.PP_98 			= result_list[0]['PP_98']
+		self.PP_98_HR 		= result_list[0]['PP_98_HR']
+		self.PP_98_HD 		= result_list[0]['PP_98_HD']
+		self.PP_98_DT 		= result_list[0]['PP_98_DT']
+		self.PP_98_DTHD 	= result_list[0]['PP_98_DTHD']
+		self.PP_98_DTHR 	= result_list[0]['PP_98_DTHR']
+		self.PP_98_HRHD 	= result_list[0]['PP_98_HRHD']
+		self.PP_98_DTHRHD 	= result_list[0]['PP_98_DTHRHD']
+
+		self.PP_97 			= result_list[0]['PP_97']
+		self.PP_97_HR 		= result_list[0]['PP_97_HR']
+		self.PP_97_HD 		= result_list[0]['PP_97_HD']
+		self.PP_97_DT 		= result_list[0]['PP_97_DT']
+		self.PP_97_DTHD 	= result_list[0]['PP_97_DTHD']
+		self.PP_97_DTHR 	= result_list[0]['PP_97_DTHR']
+		self.PP_97_HRHD 	= result_list[0]['PP_97_HRHD']
+		self.PP_97_DTHRHD 	= result_list[0]['PP_97_DTHRHD']
+
+		connexion.close()
+
+		return
+
