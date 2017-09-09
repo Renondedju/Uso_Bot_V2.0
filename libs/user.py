@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import sqlite3
+import sqlite3, json
+from osuapi import get_user, get_user_best
 
 class User():
 	""" User informations """
@@ -224,6 +225,12 @@ class User():
 		connexion.close()
 
 		return
+
+	def update_user_stats(self, osu_id):
+		userinfo = get_user("Todo key load", osu_id, 0)
+		self.osu_name = userinfo['username']
+		self.rank = int(userinfo['pp_rank'])
+		# Todo rest
 
 	def print_user_profile(self):
 		"""Clean output to see this user parameters"""
