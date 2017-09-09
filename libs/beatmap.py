@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import sqlite3
+import wget
+import os
 
 class Beatmap():
 
@@ -82,7 +84,7 @@ class Beatmap():
 		connexion = sqlite3.connect(database_path)
 		cursor = connexion.cursor()
 
-		query = cursor.execute("SELECT * FROM users WHERE beatmap_id = ?", [self.beatmap_id,])
+		query = cursor.execute("SELECT * FROM beatmaps WHERE beatmap_id = ?", [self.beatmap_id,])
 
 		colname = [ d[0] for d in query.description ]
 		result_list = [ dict(zip(colname, r)) for r in query.fetchall()]
@@ -370,7 +372,35 @@ class Beatmap():
 
 		return
 
-# beatmap = Beatmap(0, "../Database.db")
+	def beatmap_exists(self, beatmaps_path):
+		"""checks if the beatmp is stored"""
+
+		beatmap_path = '{}/{}.osu'.format(beatmaps_path, self.beatmap_id)
+		return os.path.exists(beatmap_path)
+
+	def download_beatmap(self, beatmaps_path):
+		""" Downloads a beatmap """
+
+		if not self.beatmap_exists(beatmaps_path):
+			wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(beatmaps_path, self.beatmap_id), bar=None)
+		return
+
+	def import_beatmap(self, database_path):
+		""" Imports a beatmap into the database """
+
+		#Check if the beatmap is already in the database
+		#-n
+		#	check if the beatmap is downloaded
+		#	-n
+		#		dl it
+		#	import it
+		return
+
+
+
+beatmap = Beatmap(76, "../UsoDatabase.db")
+print(beatmap.beatmap_exists("../beatmaps/beatmaps"))
+beatmap.download_beatmap("./")
 # beatmap.diff_size = 5741
 # beatmap.save_beatmap("../Database.db")
 # beatmap.print_beatmap()
