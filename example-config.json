@@ -1,0 +1,17 @@
+{
+    "logsFile": "/root/UsoBot/logs.txt", 
+    "mainServerID": "", 
+    "workingDirectory": "/root/UsoBot/", 
+    "logsChannelID": "", 
+    "oppaiCache": "/root/UsoBot/beatmaps/oppai_cache/", 
+    "mainChannelID": "", 
+    "IRCtoken": "", 
+    "prefix": "o!", 
+    "databasePath": "/root/UsoBot/UsoDatabase.db", 
+    "osuApiKey": "", 
+    "IRCusername": "", 
+    "beatmapPath": "/root/UsoBot/beatmaps/beatmaps/", 
+    "ownerDiscordID": "", 
+    "discordToken": "", 
+    "inviteLink": ""
+}
