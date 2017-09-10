@@ -7,7 +7,11 @@ import pyttanko
 
 class Beatmap():
 
-	def __init__(self, beatmap_id, database_path):
+	def __init__(self, beatmap_id, database_path, beatmaps_path):
+
+		#path for later
+		self.database_path = database_path
+		self.beatmaps_path = beatmaps_path
 
 		self.beatmap_id = beatmap_id
 		self.uso_id = None
@@ -74,15 +78,15 @@ class Beatmap():
 		self.PP_97_HRHD = None
 		self.PP_97_DTHRHD = None
 
-		self.load_beatmap(database_path)
+		self.load_beatmap()
 
-	def load_beatmap(self, database_path):
+	def load_beatmap(self):
 		""" Loading a beatmap from the database """
 
-		if not self.beatmap_id:
+		if not self.beatmap_id or not self.database_path:
 			return
 
-		connexion = sqlite3.connect(database_path)
+		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 
 		query = cursor.execute("SELECT * FROM beatmaps WHERE beatmap_id = ?", [self.beatmap_id,])
@@ -162,13 +166,13 @@ class Beatmap():
 
 		return
 
-	def save_beatmap(self, database_path):
+	def save_beatmap(self):
 		""" Saves a beatmap into a given database """
 
-		if not self.beatmap_id:
+		if not self.beatmap_id or not self.database_path:
 			return
 
-		connexion = sqlite3.connect(database_path)
+		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 
 		data = [self.uso_id,
@@ -373,21 +377,30 @@ class Beatmap():
 
 		return
 
-	def beatmap_exists(self, beatmaps_path):
+	def beatmap_exists(self):
 		"""checks if the beatmp is stored"""
 
-		beatmap_path = '{}/{}.osu'.format(beatmaps_path, self.beatmap_id)
+		if not self.beatmaps_path:
+			return
+
+		beatmap_path = '{}/{}.osu'.format(self.beatmaps_path, self.beatmap_id)
 		return os.path.exists(beatmap_path)
 
-	def download_beatmap(self, beatmaps_path):
+	def download_beatmap(self):
 		""" Downloads a beatmap """
 
-		if not self.beatmap_exists(beatmaps_path):
+		if not self.beatmaps_path:
+			return
+
+		if not self.beatmap_exists(self.beatmaps_path):
 			wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(beatmaps_path, self.beatmap_id), bar=None)
 		return
 
-	def import_beatmap(self, database_path):
+	def import_beatmap(self):
 		""" Imports a beatmap into the database """
+
+		if not self.database_path:
+			return
 
 		#Check if the beatmap is already in the database
 		#-n
