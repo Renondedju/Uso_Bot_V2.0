@@ -3,6 +3,7 @@
 import sqlite3
 import wget
 import os
+import pyttanko
 
 class Beatmap():
 
@@ -396,7 +397,19 @@ class Beatmap():
 		#	import it
 		return
 
-
+	def use_pyttanko(filename):
+		bmap = pyttanko.parser().map(open(filename))
+		hd, hr, dt = 1<<3, 1<<4, 1<<6
+		mods = [0, hd, hr, dt, hd|dt, hd|hr, dt|hr, hd|dt|hr]
+		accs = [97, 98, 99, 100]
+		peppers = {}
+		for mod in mods:
+			for acc in accs:
+				n300, n100, n50 = pyttanko.acc_round(acc, len(bmap.hitobjects), 0)
+				stars = pyttanko.diff_calc().calc(bmap, mods=mod)
+				pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=mod, n300=n300, n100=n100, n50=n50, nmiss=0)
+				peppers[str(mod)][str(acc)] = pp
+		return peppers
 
 beatmap = Beatmap(76, "../UsoDatabase.db")
 print(beatmap.beatmap_exists("../beatmaps/beatmaps"))
