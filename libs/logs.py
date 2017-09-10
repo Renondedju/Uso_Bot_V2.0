@@ -1,45 +1,8 @@
 import json
 import requests
-import aiohttp
-import asyncio
 from datetime import datetime
 from user import User
-
-# default_payload = {
-# 	'embeds' : [
-# 		{
-# 			'title' : 'Default embed',
-# 			'description' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-# 			'color': int('0x2ecc71', 16),
-# 			'author' : {
-# 				'name' : 'Lorem ipsum',
-# 				'icon_url' : 'https://cdn.discordapp.com/avatars/213262036069515264/4f4764137e0ff833e6cc93ca152428e4.png'
-# 			},
-# 			'footer' : {
-# 				'text' : 'Lorem ipsum',
-# 				'icon_url' : 'https://cdn.discordapp.com/avatars/213262036069515264/4f4764137e0ff833e6cc93ca152428e4.png'
-# 			},
-# 			'thumbnail' : {
-# 				'url' : 'https://cdn.discordapp.com/avatars/213262036069515264/4f4764137e0ff833e6cc93ca152428e4.png'
-# 			},
-# 			'image' : {
-# 				'url' : 'https://cdn.discordapp.com/avatars/213262036069515264/4f4764137e0ff833e6cc93ca152428e4.png'
-# 			},
-# 			'fields' : [ 
-# 				{
-# 					'name' : 'Lorem ipsum',
-# 					'value' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-# 					'inline' : True
-# 				},
-# 				{
-# 					'name' : 'Lorem ipsum',
-# 					'value' : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-# 					'inline' : True
-# 				}
-# 			]
-# 		}
-# 	]
-# }
+from server import Server
 
 class Log():
 
@@ -111,6 +74,34 @@ class Log():
 
 		return self.payload['embeds'].index(new_payload)
 
+	def add_server_log(self, action, server):
+		""" Adding a simple log to the payloads """
+
+		new_payload = {
+			
+			'description' : "**A server __{}__ the bot.**\n".format(action) + 
+							"__Server name :__ **{}**\n".format(server.server_name) + 
+							"__Server ID :__ **{}**\n".format(server.discord_id) + 
+							"__Users count :__ **{}**\n".format(server.users_count) + 
+							"__Owner name :__ **{}**".format(server.owner_name),
+			'color': int('0x3498db', 16),
+
+			'author' : {
+				'name' : 'Uso! - BOT',
+				'icon_url' : 'https://cdn.discordapp.com/avatars/318357311951208448/8c753cebbac3481fd90485087eaf20df.webp?size=256'
+			},
+			'footer' : {
+				'text' : datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
+			},
+			'thumbnail' : {
+ 				'url' : server.icon_url
+ 			}
+		}
+
+		self.payload['embeds'].append(new_payload)
+
+		return self.payload['embeds'].index(new_payload)
+
 	def send_logs(self):
 		""" Sending logs """
 
@@ -125,11 +116,10 @@ class Log():
 		return response.status_code
 
 logs = Log()
-me = User(123, None)
-me.osu_name = "Renondedju"
-me.discord_name = "Renondedju"
-me.rank = "MASTER"
-me.discord_id = 213262036069515264
-me.discord_icon = "4f4764137e0ff833e6cc93ca152428e4"
-logs.add_warning_log('Some warnings')
+server = Server(310348632094146570, None)
+server.icon_url = 'https://cdn.discordapp.com/avatars/213262036069515264/4f4764137e0ff833e6cc93ca152428e4.png'
+server.owner_name = 'Renondedju'
+server.users_count = 123456789
+server.server_name = 'Just a test'
+logs.add_server_log('removed', server)
 logs.send_logs()

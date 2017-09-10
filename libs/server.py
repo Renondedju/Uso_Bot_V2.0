@@ -12,15 +12,23 @@ class Server():
 		self.main_channel 	= None
 		self.muted 			= False
 
-		self.load_server(database_path)
+		#Database
+		self.database_path = database_path
 
-	def load_server(self, database_path):
+		#Logs related
+		self.users_count = None
+		self.owner_name = None
+		self.icon_url = None
+
+		self.load_server()
+
+	def load_server(self):
 		""" Loading a server from the database """
 
-		if not self.discord_id:
+		if not self.discord_id or not self.database_path:
 			return
 
-		connexion = sqlite3.connect(database_path)
+		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 		
 		query = cursor.execute("SELECT * FROM servers WHERE discord_id = ?", [self.discord_id,])
@@ -42,12 +50,12 @@ class Server():
 
 		return
 
-	def save_server(self, database_path):
+	def save_server(self):
 		""" Saves the server into a given database """
-		if not self.discord_id:
+		if not self.discord_id or not self.database_path:
 			return
 
-		connexion = sqlite3.connect(database_path)
+		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 
 		data = [self.server_name,
