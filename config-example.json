@@ -5,6 +5,7 @@
     "logsChannelID": "", 
     "oppaiCache": "/root/UsoBot/beatmaps/oppai_cache/", 
     "mainChannelID": "", 
+    "IRCname": "",
     "IRCtoken": "", 
     "prefix": "o!", 
     "databasePath": "/root/UsoBot/UsoDatabase.db", 
