@@ -1,7 +1,7 @@
 # Uso_Bot_V2.0
 Here is Uso! bot 2.0 !
 
-Current devs : Renondedju, ('J', 'a', 'm', 's'), Prideco, and capu
+Current devs : Renondedju, ('J', 'a', 'm', 'u'), Prideco, and capu
 
 Join our discord server here : https://discord.gg/Qsw3yD5
 
