@@ -1,18 +1,20 @@
-import discord
-import asyncio
-import time
-import sqlite3
-import json
+from discord.ext import commands
+from datetime import datetime
+import asyncio, json
 
-bot = commands.Bot(command_prefix='!')
-database = sqlite3.connect('UsoDatabase.db')
-settings = json.loads(open('config.json', 'r').read())
+bot = commands.Bot(command_prefix='o!', description="Uso! is the best bot")
+bot.settings = json_loads(open('config.json', 'r').read())
 
-@bot.command(pass_context=True)
-async def ping(ctx):
-    t1 = time.perf_counter()
-    await bot.send_typing(ctx.message.channel)
-    t2 = time.perf_counter()
-    await bot.send_message(ctx.message.channel, "Pong. Took {}ms".format(round((t2 - t1) * 100)))
+@bot.event
+async def on_ready():
+    print('Logged in as {}\nI can see {} users in {} servers'.format(
+        bot.user,  len(list(bot.get_all_members())), 
+        len(bot.servers)))
+    bot.uptime = datetime.now()
+    for cog in bot.settings['cogs']:
+        try:
+            bot.load_extension(cog)
+        except Exception as e:
+            print('Failed to load cog {}\n{}: {}'.format(cog, type(e).__name__, e))
 
-bot.run(settings['discordToken'])
+bot.run(bot.settings['token'])
