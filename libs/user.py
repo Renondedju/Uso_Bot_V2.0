@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sqlite3, json
 from osuapi import get_user, get_user_best
+import pyttanko
 
 class User():
 	""" User informations """
@@ -242,9 +243,33 @@ class User():
 			return
 
 		userinfo = get_user("Todo key load", osu_id, 0)
+		userbest = get_user_best("Todo key load", osu_id, 0, 20)
 		self.osu_name = userinfo['username']
 		self.rank = int(userinfo['pp_rank'])
-		# Todo rest
+		self.playstyle = 0
+		self.accuracy_average = 0
+		self.cs_average = 0
+		self.ar_average = 0
+		self.od_average = 0
+		self.bpm_average = []
+		for score in scores:
+			btmap = "Todo map load"
+			pp, stars = await self.get_pyttanko(btmap, int(score['enabled_mods']), score['count300'], score['count100'], score['count50'], score['countmiss'], score['maxcombo'])
+			self.accuracy_average += pyttanko.acc_calc(int(score['count300']), int(score['count100']), int(score['count50']), int(score['countmiss']))
+			self.cs_average += btmap.cs
+			self.ar_average += btmap.ar
+			self.od_average += btmap.od
+			self.bpm_average.extend([timing.ms_per_beat for timing in btmap.timing_points if timing.change])
+			self.playstyle += stars.speed / stars.total
+		self.playstyle = (self.playstyle / 20) * 100
+		self.cs_average = self.cs_average / 20
+		self.ar_average = self.ar_average / 20
+		self.od_average = self.od_average / 20
+		self.bpm_high = max(self.bpm_average)
+		self.bpm_low = min(self.bpm_average)
+		self.bpm_average = (sum(self.bpm_average) / len(self.bpm_average))
+	
+		return
 
 	def print_user_profile(self):
 		"""Clean output to see this user parameters"""

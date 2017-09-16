@@ -9,19 +9,19 @@ class Uptime:
     @commands.command()
     async def uptime(self):
         timeago = datetime(1,1,1) + (self.bot.uptime - datetime.now())
+        botuptime = "Bot has been up for "
         if timeago.year-1 != 0:
-            time_ago += "{} Year{} ".format(timeago.year-1, 's' if timeago.year-1 != 1 else '')
+            botuptime += "{} Year{} ".format(timeago.year-1, 's' if timeago.year-1 != 1 else '')
         if timeago.month-1 !=0:
-            time_ago += "{} Month{} ".format(timeago.month-1, 's' if timeago.month-1 != 1 else '')
+            botuptime += "{} Month{} ".format(timeago.month-1, 's' if timeago.month-1 != 1 else '')
         if timeago.day-1 !=0:
-            time_ago += "{} Day{} ".format(timeago.day-1, 's' if timeago.day-1 != 1 else '')
+            botuptime += "{} Day{} ".format(timeago.day-1, 's' if timeago.day-1 != 1 else '')
         if timeago.hour != 0:
-            time_ago += "{} Hour{} ".format(timeago.hour, 's' if timeago.hour != 1 else '')
+            botuptime += "{} Hour{} ".format(timeago.hour, 's' if timeago.hour != 1 else '')
         if timeago.minute != 0:
-            time_ago += "{} Minute{} ".format(timeago.minute, 's' if timeago.minute != 1 else '')
-        time_ago += "{} Second{}".format(timeago.second, 's' if timeago.second != 1 else '')
-        self.bot.say("Bot has been up for " + time_ago)
-
+            botuptime += "{} Minute{} ".format(timeago.minute, 's' if timeago.minute != 1 else '')
+        botuptime += "{} Second{}".format(timeago.second, 's' if timeago.second != 1 else '')
+        self.bot.say(botuptime)
 
 def setup(bot):
     bot.add_cog(Uptime(bot))
