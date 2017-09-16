@@ -102,6 +102,27 @@ class Log():
 
 		return self.payload['embeds'].index(new_payload)
 
+	def add_debug_log(self, debug):
+		""" Adding a debug log to the payloads """
+
+		new_payload = {
+			
+			'description' : '**{}**'.format(debug),
+			'color': int('0x2c2f33', 16),
+
+			'author' : {
+				'name' : 'Uso! - BOT',
+				'icon_url' : 'https://cdn.discordapp.com/avatars/318357311951208448/8c753cebbac3481fd90485087eaf20df.webp?size=256'
+			},
+			'footer' : {
+				'text' : datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
+			}
+		}
+
+		self.payload['embeds'].append(new_payload)
+
+		return self.payload['embeds'].index(new_payload)
+
 	def send_logs(self):
 		""" Sending logs """
 
@@ -116,10 +137,10 @@ class Log():
 		return response.status_code
 
 logs = Log()
-server = Server(310348632094146570, None)
-server.icon_url = 'https://cdn.discordapp.com/avatars/213262036069515264/4f4764137e0ff833e6cc93ca152428e4.png'
-server.owner_name = 'Renondedju'
-server.users_count = 123456789
-server.server_name = 'Just a test'
-logs.add_server_log('removed', server)
+logs.add_debug_log('Example logs are following ...')
+logs.send_logs()
+logs.add_warning_log('Starting irc script')
+logs.add_debug_log('Connecting to irc.ppy.sh:6667')
+logs.send_logs()
+logs.add_debug_log('Connected !')
 logs.send_logs()
