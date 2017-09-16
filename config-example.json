@@ -15,5 +15,6 @@
     "ownerDiscordID": "", 
     "discordToken": "", 
     "inviteLink": "",
-    "webhookUrl": "https://discordapp.com/api/webhooks/353954085223006208/qS0aEXMC-4j_P02Fojqa9ogsGr4JEHWLDbRq4CnANtywx9gBJ9paeCRPmKkplGM_6ro3"
+    "webhookUrl": "https://discordapp.com/api/webhooks/353954085223006208/qS0aEXMC-4j_P02Fojqa9ogsGr4JEHWLDbRq4CnANtywx9gBJ9paeCRPmKkplGM_6ro3",
+    "cogs": ["commands.uptime"]
 }
