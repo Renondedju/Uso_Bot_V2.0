@@ -271,6 +271,11 @@ class User():
 	
 		return
 
+	def get_pyttanko(self, bmap, mods:int, n300:int, n100:int, n50:int, nmiss:int, combo:int):
+		stars = pyttanko.diff_calc().calc(bmap, mods=mods)
+		pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=int(mods), n300=int(n300), n100=int(n100), n50=int(n50), nmiss=int(nmiss), combo=int(combo))
+		return (pp, stars)
+
 	def print_user_profile(self):
 		"""Clean output to see this user parameters"""
 
