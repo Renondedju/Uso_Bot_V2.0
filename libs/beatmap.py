@@ -5,6 +5,8 @@ import wget
 import os
 import pyttanko
 
+from mods import Mods
+
 class Beatmap():
 
     def __init__(self, beatmap_id:int):
@@ -12,7 +14,7 @@ class Beatmap():
         #path for later
         self.settings = json.loads(open('../config.json', 'r').read())
         self.database_path = self.settings['database_path']
-        self.beatmaps_path = self.settings['beatmaps_path']
+        self.beatmaps_path = self.settings['beatmap_path']
 
         self.beatmap_id = beatmap_id
         self.uso_id = 0
@@ -396,83 +398,101 @@ class Beatmap():
         if not self.beatmaps_path:
             return
 
-        if not self.beatmap_exists(self.beatmaps_path):
+        if not self.beatmap_exists():
             wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id), bar=None)
         return
+
+    def use_pyttanko(self, beatmap):
+        """Processing beatmap to extrace juicy pp stats"""
+
+        hd, hr, dt = 1<<3, 1<<4, 1<<6
+        mods = [0, hd, hr, dt, hd|dt, hd|hr, dt|hr, hd|dt|hr]
+        accs = [97, 98, 99, 100]
+
+        peppers = {}
+        temp    = {}
+
+        for mod in mods:
+            for acc in accs:
+
+                pyttanko.mods_apply(mod) #mods doesn't seems to be working :/
+                n300, n100, n50 = pyttanko.acc_round(acc, len(beatmap.hitobjects), 0)
+                stars = pyttanko.diff_calc().calc(beatmap, mods=mod)
+                pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=beatmap, mods=mod, n300=n300, n100=n100, n50=n50, nmiss=0)
+
+                temp[str(acc)] = (pp, stars)
+                peppers[pyttanko.mods_str(mod)] = temp
+
+        return peppers
 
     def import_beatmap(self):
         """ Imports a beatmap into the database """
 
-        beatmap_path = "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)
         #Check if the beatmap is already in the database
         self.download_beatmap()
-        bmap = pyttanko.parser().map(open(beatmap_path))
-        peppers = use_pyttanko(bmap)
-        self.bpm = bmap.bpm
-        self.difficultyrating = peppers['nomod']['100'][1].total
-        self.aim_stars = peppers['nomod']['100'][1].aim
-        self.speed_stars = peppers['nomod']['100'][1].speed
-        self.playstyle = self.speed_stars / self.difficultyrating
-        self.diff_size = bmap.cs
-        self.diff_overall = bmap.od
-        self.diff_approach = bmap.ar
-        self.diff_drain = bmap.hp
-        self.hit_length = bmap.hit_length
-        self.total_length = bmap.total_length
-        self.max_combo = bmap.max_combo
-        self.artist = bmap.artist
-        self.creator = bmap.creator
-        self.title = bmap.title
-        self.version = bmap.version
-        self.mode = bmap.mode
-        self.PP_100 = peppers['nomod']['100'][0]
-        self.PP_100_HR = peppers['HR']['100'][0]
-        self.PP_100_HD = peppers['HD']['100'][0]
-        self.PP_100_DT = peppers['DT']['100'][0]
-        self.PP_100_DTHD = peppers['HDDT']['100'][0]
-        self.PP_100_DTHR = peppers['HRDT']['100'][0]
-        self.PP_100_HRHD = peppers['HDHR']['100'][0]
-        self.PP_100_DTHRHD = peppers['HDHRDT']['100'][0]
-        self.PP_99 = peppers['nomod']['99'][0]
-        self.PP_99_HR = peppers['HR']['99'][0]
-        self.PP_99_HD = peppers['HD']['99'][0]
-        self.PP_99_DT = peppers['DT']['99'][0]
-        self.PP_99_DTHD = peppers['HDDT']['99'][0]
-        self.PP_99_DTHR = peppers['HRDT']['99'][0]
-        self.PP_99_HRHD = peppers['HDHR']['99'][0]
-        self.PP_99_DTHRHD = peppers['HDHRDT']['99'][0]
-        self.PP_98 = peppers['nomod']['98'][0]
-        self.PP_98_HR = peppers['HR']['98'][0]
-        self.PP_98_HD = peppers['HD']['98'][0]
-        self.PP_98_DT = peppers['DT']['98'][0]
-        self.PP_98_DTHD = peppers['HDDT']['98'][0]
-        self.PP_98_DTHR = peppers['HRDT']['98'][0]
-        self.PP_98_HRHD = peppers['HDHR']['98'][0]
-        self.PP_98_DTHRHD = peppers['HDHRDT']['98'][0]
-        self.PP_97 = peppers['nomod']['97'][0]
-        self.PP_97_HR = peppers['HR']['97'][0]
-        self.PP_97_HD = peppers['HD']['97'][0]
-        self.PP_97_DT = peppers['DT']['97'][0]
-        self.PP_97_DTHD = peppers['HDDT']['97'][0]
-        self.PP_97_DTHR = peppers['HRDT']['97'][0]
-        self.PP_97_HRHD = peppers['HDHR']['97'][0]
-        self.PP_97_DTHRHD = peppers['HDHRDT']['97'][0]
+
+        beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
+        peppers    = self.use_pyttanko(beatmap)
+
+        self.difficultyrating   = round(peppers['nomod']['100'][1].total, 2)
+        self.aim_stars          = round(peppers['nomod']['100'][1].aim,   2)
+        self.speed_stars        = round(peppers['nomod']['100'][1].speed, 2)
+
+        self.playstyle          = self.speed_stars / self.difficultyrating
+
+        #self.bpm                = beatmap.bpm #No bmp data in beatmap ...
+        self.diff_size          = beatmap.cs
+        self.diff_overall       = beatmap.od
+        self.diff_approach      = beatmap.ar
+        self.diff_drain         = beatmap.hp
+        #self.hit_length         = beatmap.hit_length
+        #self.total_length       = beatmap.total_length
+        #self.max_combo          = beatmap.max_combo
+        self.artist             = beatmap.artist
+        self.creator            = beatmap.creator
+        self.title              = beatmap.title
+        self.version            = beatmap.version
+        self.mode               = beatmap.mode
+
+        self.PP_100             = round(peppers['nomod']['100'][0])
+        self.PP_100_HR          = round(peppers['HR']['100'][0])
+        self.PP_100_HD          = round(peppers['HD']['100'][0])
+        self.PP_100_DT          = round(peppers['DT']['100'][0])
+        self.PP_100_DTHD        = round(peppers['HDDT']['100'][0])
+        self.PP_100_DTHR        = round(peppers['HRDT']['100'][0])
+        self.PP_100_HRHD        = round(peppers['HDHR']['100'][0])
+        self.PP_100_DTHRHD      = round(peppers['HDHRDT']['100'][0])
+
+        self.PP_99              = round(peppers['nomod']['99'][0])
+        self.PP_99_HR           = round(peppers['HR']['99'][0])
+        self.PP_99_HD           = round(peppers['HD']['99'][0])
+        self.PP_99_DT           = round(peppers['DT']['99'][0])
+        self.PP_99_DTHD         = round(peppers['HDDT']['99'][0])
+        self.PP_99_DTHR         = round(peppers['HRDT']['99'][0])
+        self.PP_99_HRHD         = round(peppers['HDHR']['99'][0])
+        self.PP_99_DTHRHD       = round(peppers['HDHRDT']['99'][0])
+
+        self.PP_98              = round(peppers['nomod']['98'][0])
+        self.PP_98_HR           = round(peppers['HR']['98'][0])
+        self.PP_98_HD           = round(peppers['HD']['98'][0])
+        self.PP_98_DT           = round(peppers['DT']['98'][0])
+        self.PP_98_DTHD         = round(peppers['HDDT']['98'][0])
+        self.PP_98_DTHR         = round(peppers['HRDT']['98'][0])
+        self.PP_98_HRHD         = round(peppers['HDHR']['98'][0])
+        self.PP_98_DTHRHD       = round(peppers['HDHRDT']['98'][0])
+
+        self.PP_97              = round(peppers['nomod']['97'][0])
+        self.PP_97_HR           = round(peppers['HR']['97'][0])
+        self.PP_97_HD           = round(peppers['HD']['97'][0])
+        self.PP_97_DT           = round(peppers['DT']['97'][0])
+        self.PP_97_DTHD         = round(peppers['HDDT']['97'][0])
+        self.PP_97_DTHR         = round(peppers['HRDT']['97'][0])
+        self.PP_97_HRHD         = round(peppers['HDHR']['97'][0])
+        self.PP_97_DTHRHD       = round(peppers['HDHRDT']['97'][0])
+
         return
 
-    def use_pyttanko(bmap):
-        hd, hr, dt = 1<<3, 1<<4, 1<<6
-        mods = [0, hd, hr, dt, hd|dt, hd|hr, dt|hr, hd|dt|hr]
-        accs = [97, 98, 99, 100]
-        peppers = {}
-        for mod in mods:
-            for acc in accs:
-                n300, n100, n50 = pyttanko.acc_round(acc, len(bmap.hitobjects), 0)
-                stars = pyttanko.diff_calc().calc(bmap, mods=mod)
-                pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=mod, n300=n300, n100=n100, n50=n50, nmiss=0)
-                peppers[pyttanko.mods_str(mod)][str(acc)] = (pp, stars)
-        return peppers
-
-beatmap = Beatmap(45, "../UsoDatabase.db", "../beatmaps/beatmaps")
-beatmap.diff_size = 5741
+beatmap = Beatmap(269781)
+beatmap.import_beatmap()
 beatmap.save_beatmap()
 beatmap.print_beatmap()
