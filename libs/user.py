@@ -7,9 +7,10 @@ import pyttanko
 class User():
 	""" User informations """
 
-	def __init__(self, osu_id:int, database_path:str):
+	def __init__(self, osu_id:int):
 		
-		self.database_path = database_path
+		self.settings = json.loads(open('../config.json', 'r').read())
+		self.database_path = self.settings['database_path']
 
 		#Logs infos
 		self.discord_name = None
@@ -250,8 +251,8 @@ class User():
 		if not osu_id:
 			return
 
-		userinfo = get_user("Todo key load", osu_id, Mode.Osu)
-		userbest = get_user_best("Todo key load", osu_id, Mode.Osu, 20)
+		userinfo = get_user(self.settings['osu_api_key'], osu_id, Mode.Osu)
+		userbest = get_user_best(self.settings['osu_api_key'], osu_id, Mode.Osu, 20)
 		self.osu_name = userinfo['username']
 		self.rank = int(userinfo['pp_rank'])
 		self.playstyle = 0

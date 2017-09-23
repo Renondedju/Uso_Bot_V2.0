@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import sqlite3
 import wget
 import os
@@ -7,11 +7,12 @@ import pyttanko
 
 class Beatmap():
 
-    def __init__(self, beatmap_id, database_path, beatmaps_path):
+    def __init__(self, beatmap_id:int):
 
         #path for later
-        self.database_path = database_path
-        self.beatmaps_path = beatmaps_path
+        self.settings = json.loads(open('../config.json', 'r').read())
+        self.database_path = self.settings['database_path']
+        self.beatmaps_path = self.settings['beatmaps_path']
 
         self.beatmap_id = beatmap_id
         self.uso_id = 0
