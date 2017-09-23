@@ -4,7 +4,7 @@ import sqlite3
 class Server():
 	"""Server informations"""
 
-	def __init__(self, discord_id, database_path):
+	def __init__(self, discord_id:int, database_path:str):
 
 		#Basic parameters
 		self.discord_id 	= discord_id

@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 import sqlite3, json
 from osuapi import get_user, get_user_best
+from mods import Mode
 import pyttanko
 
 class User():
 	""" User informations """
 
-	def __init__(self, osu_id, database_path):
+	def __init__(self, osu_id:int, database_path:str):
 		
+		self.database_path = database_path
+
 		#Logs infos
 		self.discord_name = None
 		self.discord_icon = None
@@ -68,17 +71,17 @@ class User():
 
 		self.load_user_profile(database_path)
 
-	def set_logs_infos(self, discord_name, discord_icon):
+	def set_logs_infos(self, discord_name:str, discord_icon:str):
 		""" Seting discord_name and discord_icon"""
 		self.discord_icon = discord_icon
 		self.discord_name = discord_name
 
-	def load_user_profile(self, database_path):
+	def load_user_profile(self):
 		""" Loading a user profile from the database """
-		if not self.osu_id or not database_path:
+		if not self.osu_id or not self.database_path:
 			return
 
-		connexion = sqlite3.connect(database_path)
+		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 		
 		query = cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
@@ -147,12 +150,12 @@ class User():
 
 		return
 
-	def save_user_profile(self, database_path):
+	def save_user_profile(self):
 		""" Saves the user profile into a given database """
-		if not self.osu_id or not database_path:
+		if not self.osu_id or not self.database_path:
 			return
 
-		connexion = sqlite3.connect(database_path)
+		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 
 		data = [self.discord_id,
@@ -192,58 +195,63 @@ class User():
 			self.last_time_played,
 			self.osu_id,]
 
-		cursor.execute("""UPDATE users SET 
-			discord_id 				= ?,
-			osu_name 				= ?,
-			rank 					= ?,
-			accuracy_average 		= ?,
-			pp_average 				= ?,
-			bpm_low 				= ?,
-			bpm_average 			= ?,
-			bpm_high 				= ?,
-			od_average 				= ?,
-			ar_average 				= ?,
-			cs_average 				= ?,
-			len_average 			= ?,
-			Nomod_playrate 			= ?,
-			HR_playrate 			= ?,
-			HD_playrate 			= ?,
-			DT_playrate 			= ?,
-			DTHD_playrate 			= ?,
-			DTHR_playrate 			= ?,
-			HRHD_playrate 			= ?,
-			DTHRHD_playrate 		= ?,
-			Nomod_recommended 		= ?,
-			HR_recommended 			= ?,
-			HD_recommended 			= ?,
-			DTHR_recommended 		= ?,
-			DTHD_recommended 		= ?,
-			DTHR_recommended 		= ?, 
-			HRHD_recommended 		= ?,
-			playstyle 				= ?,
-			api_key 				= ?,
-			request_rate 			= ?,
-			requests_max 			= ?,
-			donations 				= ?,
-			last_discord_patch_used = ?,
-			last_irc_patch_used 	= ?,
-			last_time_played 		= ?
-
-			WHERE osu_id = ?
+		try:
+			cursor.execute(""" INSERT OR REPLACE INTO users
+			(discord_id,
+			osu_name,
+			rank,
+			accuracy_average,
+			pp_average,
+			bpm_low,
+			bpm_average,
+			bpm_high,
+			od_average,
+			ar_average,
+			cs_average,
+			len_average,
+			Nomod_playrate,
+			HR_playrate,
+			HD_playrate,
+			DT_playrate,
+			DTHD_playrate,
+			DTHR_playrate,
+			HRHD_playrate,
+			DTHRHD_playrate,
+			Nomod_recommended,
+			HR_recommended,
+			HD_recommended,
+			DTHR_recommended,
+			DTHD_recommended,
+			DTHR_recommended, 
+			HRHD_recommended,
+			playstyle,
+			api_key,
+			request_rate,
+			requests_max,
+			donations,
+			last_discord_patch_used,
+			last_irc_patch_used,
+			last_time_played,
+			osu_id)
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			""", data)
+		except Exception as e:
+			print('\033[91mFailed to save user (id = {}, name = {})\n{}: {}\033[0m'.format(self.osu_id, self.osu_name, type(e).__name__, e))
+			connexion.close()
+			return
 
 		connexion.commit()
 		connexion.close()
 
 		return
 
-	def update_user_stats(self, osu_id):
+	def update_user_stats(self, osu_id:int):
 
 		if not osu_id:
 			return
 
-		userinfo = get_user("Todo key load", osu_id, 0)
-		userbest = get_user_best("Todo key load", osu_id, 0, 20)
+		userinfo = get_user("Todo key load", osu_id, Mode.Osu)
+		userbest = get_user_best("Todo key load", osu_id, Mode.Osu, 20)
 		self.osu_name = userinfo['username']
 		self.rank = int(userinfo['pp_rank'])
 		self.playstyle = 0
@@ -254,7 +262,7 @@ class User():
 		self.bpm_average = []
 		for score in scores:
 			btmap = "Todo map load"
-			pp, stars = await self.get_pyttanko(btmap, int(score['enabled_mods']), score['count300'], score['count100'], score['count50'], score['countmiss'], score['maxcombo'])
+			pp, stars = self.get_pyttanko(btmap, int(score['enabled_mods']), score['count300'], score['count100'], score['count50'], score['countmiss'], score['maxcombo'])
 			self.accuracy_average += pyttanko.acc_calc(int(score['count300']), int(score['count100']), int(score['count50']), int(score['countmiss']))
 			self.cs_average += btmap.cs
 			self.ar_average += btmap.ar
@@ -339,6 +347,8 @@ class User():
 		return
 
 # --- Test lines !
+user = User(20, "../UsoDatabase.db")
 #user.print_user_profile()
-#user.od_average = 50
-#user.save_user_profile("../UsoDatabase.db")
+user.od_average = 25
+user.osu_name = 'Test'
+user.save_user_profile("../UsoDatabase.db")
