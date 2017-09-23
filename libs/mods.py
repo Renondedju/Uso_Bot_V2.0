@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 
-class Mods(Enum)
+class Mods(Enum):
 	"""Enums of the mods"""
-{	
 	none           = 0,
 	NoFail         = 1,
 	Easy           = 2,
@@ -25,23 +24,20 @@ class Mods(Enum)
 	Key6           = 131072,
 	Key7           = 262144,
 	Key8           = 524288,
-	keyMod         = Key4 | Key5 | Key6 | Key7 | Key8,
+	keyMod         = (32768 | 65536 | 131072 | 262144 | 524288),
 	FadeIn         = 1048576,
 	Random         = 2097152,
 	LastMod        = 4194304,
-	FreeModAllowed = NoFail | Easy | Hidden | HardRock | SuddenDeath | Flashlight | FadeIn | Relax | Relax2 | SpunOut | keyMod,
+	FreeModAllowed = (1 | 2 | 8 | 16 | 32 | 1024 | 1048576 | 128 | 8192 | 4096 | (32768 | 65536 | 131072 | 262144 | 524288)),
 	Key9           = 16777216,
 	Key10          = 33554432,
 	Key1           = 67108864,
 	Key3           = 134217728,
 	Key2           = 268435456
-}
 
-class Mode(Enum)
+class Mode(Enum):
 	"""Enum of the modes"""
-{
 	Osu 	= 0,
 	Taiko 	= 1,
 	Ctb		= 2,
 	Mania	= 3
-}
