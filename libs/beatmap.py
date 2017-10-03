@@ -402,7 +402,7 @@ class Beatmap():
             wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id), bar=None)
         return
 
-    def use_pyttanko(self, beatmap):
+    def use_pyttanko(self):
         """Processing beatmap to extrace juicy pp stats"""
 
         hd, hr, dt = 1<<3, 1<<4, 1<<6
@@ -415,6 +415,8 @@ class Beatmap():
         for mod in mods:
             for acc in accs:
 
+                print ('processing mod: {} with acc: {}'.format(mod, acc))
+                beatmap = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
                 pyttanko.mods_apply(mod) #mods doesn't seems to be working :/
                 n300, n100, n50 = pyttanko.acc_round(acc, len(beatmap.hitobjects), 0)
                 stars = pyttanko.diff_calc().calc(beatmap, mods=mod)
@@ -432,7 +434,7 @@ class Beatmap():
         self.download_beatmap()
 
         beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
-        peppers    = self.use_pyttanko(beatmap)
+        peppers    = self.use_pyttanko()
 
         self.difficultyrating   = round(peppers['nomod']['100'][1].total, 2)
         self.aim_stars          = round(peppers['nomod']['100'][1].aim,   2)
@@ -492,7 +494,7 @@ class Beatmap():
 
         return
 
-beatmap = Beatmap(269781)
+beatmap = Beatmap(1027895)
 beatmap.import_beatmap()
 beatmap.save_beatmap()
 beatmap.print_beatmap()
