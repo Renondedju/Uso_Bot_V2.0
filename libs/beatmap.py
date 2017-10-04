@@ -181,8 +181,7 @@ class Beatmap():
         connexion = sqlite3.connect(self.database_path)
         cursor = connexion.cursor()
 
-        data = [self.uso_id,
-            self.beatmapset_id,
+        data = [self.beatmapset_id,
             self.bpm,
             self.difficultyrating,
             self.aim_stars,
@@ -239,8 +238,7 @@ class Beatmap():
             self.beatmap_id,]
 
         cursor.execute(""" INSERT OR REPLACE INTO beatmaps
-            (uso_id,
-            beatmapset_id,
+            (beatmapset_id,
             bpm,
             difficultyrating,
             aim_stars,
@@ -295,7 +293,7 @@ class Beatmap():
             PP_97_HRHD,
             PP_97_DTHRHD,
             beatmap_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, data)
 
         connexion.commit()
@@ -402,28 +400,26 @@ class Beatmap():
             wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id), bar=None)
         return
 
-    def use_pyttanko(self):
+    def use_pyttanko(self, beatmap):
         """Processing beatmap to extrace juicy pp stats"""
 
-        hd, hr, dt = 1<<3, 1<<4, 1<<6
+        hr = pyttanko.MODS_HR
+        hd = pyttanko.MODS_HD
+        dt = pyttanko.MODS_DT
+
         mods = [0, hd, hr, dt, hd|dt, hd|hr, dt|hr, hd|dt|hr]
         accs = [97, 98, 99, 100]
 
         peppers = {}
-        temp    = {}
 
+        #This is where the magic happends, woahhhh *.*
         for mod in mods:
             for acc in accs:
 
-                print ('processing mod: {} with acc: {}'.format(mod, acc))
-                beatmap = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
-                pyttanko.mods_apply(mod) #mods doesn't seems to be working :/
                 n300, n100, n50 = pyttanko.acc_round(acc, len(beatmap.hitobjects), 0)
                 stars = pyttanko.diff_calc().calc(beatmap, mods=mod)
                 pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=beatmap, mods=mod, n300=n300, n100=n100, n50=n50, nmiss=0)
-
-                temp[str(acc)] = (pp, stars)
-                peppers[pyttanko.mods_str(mod)] = temp
+                peppers[pyttanko.mods_str(mod), str(acc)] = (pp, stars)
 
         return peppers
 
@@ -433,12 +429,15 @@ class Beatmap():
         #Check if the beatmap is already in the database
         self.download_beatmap()
 
-        beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
-        peppers    = self.use_pyttanko()
+        try:
+            beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
+            peppers    = self.use_pyttanko(beatmap)
+        except:
+            return 0
 
-        self.difficultyrating   = round(peppers['nomod']['100'][1].total, 2)
-        self.aim_stars          = round(peppers['nomod']['100'][1].aim,   2)
-        self.speed_stars        = round(peppers['nomod']['100'][1].speed, 2)
+        self.difficultyrating   = round(peppers['nomod', '100'][1].total, 2)
+        self.aim_stars          = round(peppers['nomod', '100'][1].aim,   2)
+        self.speed_stars        = round(peppers['nomod', '100'][1].speed, 2)
 
         self.playstyle          = self.speed_stars / self.difficultyrating
 
@@ -447,7 +446,9 @@ class Beatmap():
         self.diff_overall       = beatmap.od
         self.diff_approach      = beatmap.ar
         self.diff_drain         = beatmap.hp
-        #self.hit_length         = beatmap.hit_length
+
+        #Thoses datas are missing from the beatmap object :/
+        #self.hit_length         = beatmap.hit_length 
         #self.total_length       = beatmap.total_length
         #self.max_combo          = beatmap.max_combo
         self.artist             = beatmap.artist
@@ -456,45 +457,52 @@ class Beatmap():
         self.version            = beatmap.version
         self.mode               = beatmap.mode
 
-        self.PP_100             = round(peppers['nomod']['100'][0])
-        self.PP_100_HR          = round(peppers['HR']['100'][0])
-        self.PP_100_HD          = round(peppers['HD']['100'][0])
-        self.PP_100_DT          = round(peppers['DT']['100'][0])
-        self.PP_100_DTHD        = round(peppers['HDDT']['100'][0])
-        self.PP_100_DTHR        = round(peppers['HRDT']['100'][0])
-        self.PP_100_HRHD        = round(peppers['HDHR']['100'][0])
-        self.PP_100_DTHRHD      = round(peppers['HDHRDT']['100'][0])
+        self.PP_100             = round(peppers['nomod', '100'][0])
+        self.PP_100_HR          = round(peppers['HR',    '100'][0])
+        self.PP_100_HD          = round(peppers['HD',    '100'][0])
+        self.PP_100_DT          = round(peppers['DT',    '100'][0])
+        self.PP_100_DTHD        = round(peppers['HDDT',  '100'][0])
+        self.PP_100_DTHR        = round(peppers['HRDT',  '100'][0])
+        self.PP_100_HRHD        = round(peppers['HDHR',  '100'][0])
+        self.PP_100_DTHRHD      = round(peppers['HDHRDT','100'][0])
 
-        self.PP_99              = round(peppers['nomod']['99'][0])
-        self.PP_99_HR           = round(peppers['HR']['99'][0])
-        self.PP_99_HD           = round(peppers['HD']['99'][0])
-        self.PP_99_DT           = round(peppers['DT']['99'][0])
-        self.PP_99_DTHD         = round(peppers['HDDT']['99'][0])
-        self.PP_99_DTHR         = round(peppers['HRDT']['99'][0])
-        self.PP_99_HRHD         = round(peppers['HDHR']['99'][0])
-        self.PP_99_DTHRHD       = round(peppers['HDHRDT']['99'][0])
+        self.PP_99              = round(peppers['nomod', '99'][0])
+        self.PP_99_HR           = round(peppers['HR',    '99'][0])
+        self.PP_99_HD           = round(peppers['HD',    '99'][0])
+        self.PP_99_DT           = round(peppers['DT',    '99'][0])
+        self.PP_99_DTHD         = round(peppers['HDDT',  '99'][0])
+        self.PP_99_DTHR         = round(peppers['HRDT',  '99'][0])
+        self.PP_99_HRHD         = round(peppers['HDHR',  '99'][0])
+        self.PP_99_DTHRHD       = round(peppers['HDHRDT','99'][0])
 
-        self.PP_98              = round(peppers['nomod']['98'][0])
-        self.PP_98_HR           = round(peppers['HR']['98'][0])
-        self.PP_98_HD           = round(peppers['HD']['98'][0])
-        self.PP_98_DT           = round(peppers['DT']['98'][0])
-        self.PP_98_DTHD         = round(peppers['HDDT']['98'][0])
-        self.PP_98_DTHR         = round(peppers['HRDT']['98'][0])
-        self.PP_98_HRHD         = round(peppers['HDHR']['98'][0])
-        self.PP_98_DTHRHD       = round(peppers['HDHRDT']['98'][0])
+        self.PP_98              = round(peppers['nomod', '98'][0])
+        self.PP_98_HR           = round(peppers['HR',    '98'][0])
+        self.PP_98_HD           = round(peppers['HD',    '98'][0])
+        self.PP_98_DT           = round(peppers['DT',    '98'][0])
+        self.PP_98_DTHD         = round(peppers['HDDT',  '98'][0])
+        self.PP_98_DTHR         = round(peppers['HRDT',  '98'][0])
+        self.PP_98_HRHD         = round(peppers['HDHR',  '98'][0])
+        self.PP_98_DTHRHD       = round(peppers['HDHRDT','98'][0])
 
-        self.PP_97              = round(peppers['nomod']['97'][0])
-        self.PP_97_HR           = round(peppers['HR']['97'][0])
-        self.PP_97_HD           = round(peppers['HD']['97'][0])
-        self.PP_97_DT           = round(peppers['DT']['97'][0])
-        self.PP_97_DTHD         = round(peppers['HDDT']['97'][0])
-        self.PP_97_DTHR         = round(peppers['HRDT']['97'][0])
-        self.PP_97_HRHD         = round(peppers['HDHR']['97'][0])
-        self.PP_97_DTHRHD       = round(peppers['HDHRDT']['97'][0])
+        self.PP_97              = round(peppers['nomod', '97'][0])
+        self.PP_97_HR           = round(peppers['HR',    '97'][0])
+        self.PP_97_HD           = round(peppers['HD',    '97'][0])
+        self.PP_97_DT           = round(peppers['DT',    '97'][0])
+        self.PP_97_DTHD         = round(peppers['HDDT',  '97'][0])
+        self.PP_97_DTHR         = round(peppers['HRDT',  '97'][0])
+        self.PP_97_HRHD         = round(peppers['HDHR',  '97'][0])
+        self.PP_97_DTHRHD       = round(peppers['HDHRDT','97'][0])
 
-        return
+        return 1
 
-beatmap = Beatmap(1027895)
-beatmap.import_beatmap()
-beatmap.save_beatmap()
-beatmap.print_beatmap()
+if __name__ == '__main__':
+
+    #Importing all of our beatmaps !
+    for btm in os.listdir('../beatmaps/beatmaps'):
+        print(btm, end='')
+        beatmap = Beatmap(int(btm[:-4]))
+        if (beatmap.import_beatmap()):
+            beatmap.save_beatmap()
+            print(' - Done')
+        else:
+            print(' - Failed')
