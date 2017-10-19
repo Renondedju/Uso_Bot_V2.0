@@ -441,16 +441,15 @@ class Beatmap():
 
         self.playstyle          = self.speed_stars / self.difficultyrating
 
-        #self.bpm                = beatmap.bpm #No bmp data in beatmap ...
+        self.bpm                = self.get_bpm(beatmap)
         self.diff_size          = beatmap.cs
         self.diff_overall       = beatmap.od
         self.diff_approach      = beatmap.ar
         self.diff_drain         = beatmap.hp
 
-        #Thoses datas are missing from the beatmap object :/
-        #self.hit_length         = beatmap.hit_length 
-        #self.total_length       = beatmap.total_length
-        #self.max_combo          = beatmap.max_combo
+        #self.hit_length         = beatmap.hit_length # Still working on this one
+        self.total_length       = beatmap.hitobjects[-1].time - beatmap.hitobjects[0].time
+        self.max_combo          = beatmap.max_combo()
         self.artist             = beatmap.artist
         self.creator            = beatmap.creator
         self.title              = beatmap.title
@@ -494,6 +493,11 @@ class Beatmap():
         self.PP_97_DTHRHD       = round(peppers['HDHRDT','97'][0])
 
         return 1
+
+    def get_bpm(self, beatmap):
+        mpbs = [x.ms_per_beat for x in beatmap.timing_points if x.change]
+        mpb = sum(mpbs) / len(mpbs)
+        return 60000 / mpb
 
 if __name__ == '__main__':
 
