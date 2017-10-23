@@ -2,10 +2,11 @@
 import json
 import sqlite3
 import wget
-import os
-import pyttanko
+import os, sys
+sys.path.append(os.path.realpath('../'))
+import libs.pyttanko
 
-from mods import Mods
+from libs.mods import Mods
 
 class Beatmap():
 
