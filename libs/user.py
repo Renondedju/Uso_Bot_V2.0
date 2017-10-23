@@ -3,10 +3,12 @@ import pyttanko
 import sqlite3
 import asyncio
 import json
+import os, sys
+sys.path.append(os.path.realpath('../'))
 
-from osuapi  import get_user, get_user_best
-from beatmap import Beatmap
-from mods    import Mode, Mods
+from libs.osuapi  import get_user, get_user_best
+from libs.beatmap import Beatmap
+from libs.mods    import Mode, Mods
 
 class User():
     """ User informations """

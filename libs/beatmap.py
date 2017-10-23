@@ -2,12 +2,11 @@
 import json
 import sqlite3
 import wget
-import os
-import sys
-import pyttanko
-
+import os, sys
 sys.path.append(os.path.realpath('../'))
 import libs.pyttanko
+
+from libs.mods import Mods
 
 from libs.mods import Mods
 
