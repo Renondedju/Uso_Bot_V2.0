@@ -17,52 +17,52 @@ class User():
         self.database_path = self.settings['database_path']
 
         #Logs infos
-        self.discord_name = None
-        self.discord_icon = None
+        self.discord_name = "None"
+        self.discord_icon = "None"
 
         #Global informations
         self.osu_id     = osu_id
-        self.uso_id     = None
-        self.discord_id = None
-        self.osu_name   = None
-        self.rank       = None
+        self.uso_id     = 0
+        self.discord_id = 0
+        self.osu_name   = 0
+        self.rank       = 0
 
         #User performances
-        self.accuracy_average   = None
-        self.pp_average         = None
-        self.bpm_low            = None
-        self.bpm_average        = None
-        self.bpm_high           = None
-        self.od_average         = None
-        self.ar_average         = None
-        self.cs_average         = None
-        self.len_average        = None #Drain
+        self.accuracy_average   = 0
+        self.pp_average         = 0
+        self.bpm_low            = 0
+        self.bpm_average        = 0
+        self.bpm_high           = 0
+        self.od_average         = 0
+        self.ar_average         = 0
+        self.cs_average         = 0
+        self.len_average        = 0 #Drain
 
         #Mods playrate
-        self.Nomod_playrate     = None
-        self.HR_playrate        = None
-        self.HD_playrate        = None
-        self.DT_playrate        = None
-        self.DTHD_playrate      = None
-        self.DTHR_playrate      = None
-        self.HRHD_playrate      = None
-        self.DTHRHD_playrate    = None
+        self.Nomod_playrate     = 0
+        self.HR_playrate        = 0
+        self.HD_playrate        = 0
+        self.DT_playrate        = 0
+        self.DTHD_playrate      = 0
+        self.DTHR_playrate      = 0
+        self.HRHD_playrate      = 0
+        self.DTHRHD_playrate    = 0
 
         #Mods recommended
-        self.Nomod_recommended  = None
-        self.HR_recommended     = None
-        self.HD_recommended     = None
-        self.DT_recommended     = None
-        self.DTHD_recommended   = None
-        self.DTHR_recommended   = None
-        self.HRHD_recommended   = None
-        self.DTHRHD_recommended = None
+        self.Nomod_recommended  = ""
+        self.HR_recommended     = ""
+        self.HD_recommended     = ""
+        self.DT_recommended     = ""
+        self.DTHD_recommended   = ""
+        self.DTHR_recommended   = ""
+        self.HRHD_recommended   = ""
+        self.DTHRHD_recommended = ""
 
         #Playstyle -> Jumps 0 -----|----- 1 Stream
-        self.playstyle = None
+        self.playstyle    = 0.5
 
         #Api settings
-        self.api_key      = None
+        self.api_key      = "None"
         self.request_rate = 0 # Requests/min (beatmaps requests)
 
         #Money bonuses
@@ -93,11 +93,16 @@ class User():
         
         #Making a cool looking dictionary
         colname = [ d[0] for d in query.description ]
-        result_list = [ dict(zip(colname, r)) for r in query.fetchall()]
+        result_list = [ dict(zip(colname, r)) for r in query]
         
         if len(result_list) == 0:
             connexion.close()
-            return #No coresponding user
+
+            #No coresponding user, so importing it
+            self.update_user_stats()
+            self.save_user_profile()
+
+            return
         
         self.uso_id     = result_list[0]['uso_id']
         self.discord_id = result_list[0]['discord_id']
@@ -255,6 +260,8 @@ class User():
 
         if not self.osu_id:
             return
+
+        print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
 
         userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)[0]
         userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)

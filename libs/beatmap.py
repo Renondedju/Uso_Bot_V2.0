@@ -3,83 +3,87 @@ import json
 import sqlite3
 import wget
 import os
+import sys
 import pyttanko
 
-from mods import Mods
+sys.path.append(os.path.realpath('../'))
+import libs.pyttanko
+
+from libs.mods import Mods
 
 class Beatmap():
 
     def __init__(self, beatmap_id:int):
 
         #path for later
-        self.settings = json.loads(open('../config.json', 'r').read())
-        self.database_path = self.settings['database_path']
-        self.beatmaps_path = self.settings['beatmap_path']
+        self.settings       = json.loads(open('../config.json', 'r').read())
+        self.database_path  = self.settings['database_path']
+        self.beatmaps_path  = self.settings['beatmap_path']
 
-        self.beatmap_id = beatmap_id
-        self.uso_id = 0
-        self.beatmapset_id = 0
+        self.beatmap_id     = beatmap_id
+        self.uso_id         = 0
+        self.beatmapset_id  = 0
 
-        self.bpm = 0
-        self.difficultyrating = 0
-        self.aim_stars = 0
-        self.speed_stars = 0
+        self.bpm                = 0
+        self.difficultyrating   = 0
+        self.aim_stars          = 0
+        self.speed_stars        = 0
 
-        self.playstyle = 0.5 # 0 = aim (jumps) , 1 = speed (stream)
+        self.playstyle          = 0.5 # 0 = aim (jumps) , 1 = speed (stream)
 
-        self.diff_size = 0
-        self.diff_overall = 0
-        self.diff_approach = 0
-        self.diff_drain = 0
-        self.hit_length = 0
-        self.total_length = 0
-        self.max_combo = 0
+        self.diff_size      = 0
+        self.diff_overall   = 0
+        self.diff_approach  = 0
+        self.diff_drain     = 0
+        self.hit_length     = 0
+        self.total_length   = 0
+        self.max_combo      = 0
 
-        self.artist = None
-        self.creator = None
-        self.title = None
-        self.version = None
-        self.mode = 0
-        self.tags = None
-        self.approved = None
-        self.approved_date = None
-        self.last_update = None
+        self.artist         = None
+        self.creator        = None
+        self.title          = None
+        self.version        = None
+        self.mode           = 0
+        self.tags           = None
+        self.approved       = None
+        self.approved_date  = None
+        self.last_update    = None
 
-        self.PP_100 = 0
-        self.PP_100_HR = 0
-        self.PP_100_HD = 0
-        self.PP_100_DT = 0
-        self.PP_100_DTHD = 0
-        self.PP_100_DTHR = 0
-        self.PP_100_HRHD = 0
-        self.PP_100_DTHRHD = 0
+        self.PP_100         = 0
+        self.PP_100_HR      = 0
+        self.PP_100_HD      = 0
+        self.PP_100_DT      = 0
+        self.PP_100_DTHD    = 0
+        self.PP_100_DTHR    = 0
+        self.PP_100_HRHD    = 0
+        self.PP_100_DTHRHD  = 0
 
-        self.PP_99 = 0
-        self.PP_99_HR = 0
-        self.PP_99_HD = 0
-        self.PP_99_DT = 0
-        self.PP_99_DTHD = 0
-        self.PP_99_DTHR = 0
-        self.PP_99_HRHD = 0
-        self.PP_99_DTHRHD = 0
+        self.PP_99          = 0
+        self.PP_99_HR       = 0
+        self.PP_99_HD       = 0
+        self.PP_99_DT       = 0
+        self.PP_99_DTHD     = 0
+        self.PP_99_DTHR     = 0
+        self.PP_99_HRHD     = 0
+        self.PP_99_DTHRHD   = 0
 
-        self.PP_98 = 0
-        self.PP_98_HR = 0
-        self.PP_98_HD = 0
-        self.PP_98_DT = 0
-        self.PP_98_DTHD = 0
-        self.PP_98_DTHR = 0
-        self.PP_98_HRHD = 0
-        self.PP_98_DTHRHD = 0
+        self.PP_98          = 0
+        self.PP_98_HR       = 0
+        self.PP_98_HD       = 0
+        self.PP_98_DT       = 0
+        self.PP_98_DTHD     = 0
+        self.PP_98_DTHR     = 0
+        self.PP_98_HRHD     = 0
+        self.PP_98_DTHRHD   = 0
 
-        self.PP_97 = 0
-        self.PP_97_HR = 0
-        self.PP_97_HD = 0
-        self.PP_97_DT = 0
-        self.PP_97_DTHD = 0
-        self.PP_97_DTHR = 0
-        self.PP_97_HRHD = 0
-        self.PP_97_DTHRHD = 0
+        self.PP_97          = 0
+        self.PP_97_HR       = 0
+        self.PP_97_HD       = 0
+        self.PP_97_DT       = 0
+        self.PP_97_DTHD     = 0
+        self.PP_97_DTHR     = 0
+        self.PP_97_HRHD     = 0
+        self.PP_97_DTHRHD   = 0
 
         self.load_beatmap()
 
@@ -237,7 +241,8 @@ class Beatmap():
             self.PP_97_DTHRHD,
             self.beatmap_id,]
 
-        cursor.execute(""" INSERT OR REPLACE INTO beatmaps
+        try:
+            cursor.execute(""" INSERT OR REPLACE INTO beatmaps
             (beatmapset_id,
             bpm,
             difficultyrating,
@@ -295,6 +300,8 @@ class Beatmap():
             beatmap_id)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, data)
+        except:
+            pass
 
         connexion.commit()
         connexion.close()
@@ -398,7 +405,10 @@ class Beatmap():
 
         if not self.beatmap_exists():
             wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id), bar=None)
-        return
+        else:
+            return True
+
+        return False
 
     def use_pyttanko(self, beatmap):
         """Processing beatmap to extrace juicy pp stats"""
@@ -423,16 +433,35 @@ class Beatmap():
 
         return peppers
 
+    def in_database(self):
+
+        connexion = sqlite3.connect(self.database_path)
+        cursor = connexion.cursor()
+
+        cursor.execute("SELECT beatmap_id FROM beatmaps WHERE beatmap_id = ?", [self.beatmap_id,])
+        result = cursor.fetchall()
+
+        connexion.close()
+
+        return len(result) == 1;
+
     def import_beatmap(self):
         """ Imports a beatmap into the database """
 
         #Check if the beatmap is already in the database
         self.download_beatmap()
 
+        #Checking ig the beatmap is already imported
+        if(self.in_database()):
+            return 0
+
         try:
             beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
             peppers    = self.use_pyttanko(beatmap)
         except:
+            return 0
+
+        if (round(peppers['nomod', '100'][1].total, 2) == 0):
             return 0
 
         self.difficultyrating   = round(peppers['nomod', '100'][1].total, 2)
@@ -447,8 +476,8 @@ class Beatmap():
         self.diff_approach      = beatmap.ar
         self.diff_drain         = beatmap.hp
 
-        #self.hit_length         = beatmap.hit_length # Still working on this one
         self.total_length       = beatmap.hitobjects[-1].time - beatmap.hitobjects[0].time
+        self.hit_length         = self.total_length #Need to figure this out :D
         self.max_combo          = beatmap.max_combo()
         self.artist             = beatmap.artist
         self.creator            = beatmap.creator
@@ -496,7 +525,15 @@ class Beatmap():
 
     def get_bpm(self, beatmap):
         mpbs = [x.ms_per_beat for x in beatmap.timing_points if x.change]
+
+        if len(mpbs) == 0:
+            return 0
+
         mpb = sum(mpbs) / len(mpbs)
+
+        if (mpb == 0):
+            return 0
+
         return 60000 / mpb
 
 if __name__ == '__main__':
