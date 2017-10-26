@@ -193,10 +193,11 @@ class User():
             self.Nomod_recommended,
             self.HR_recommended,
             self.HD_recommended,
-            self.DTHR_recommended,
+            self.DT_recommended,
             self.DTHD_recommended,
             self.DTHR_recommended, 
             self.HRHD_recommended,
+            self.DTHRHD_recommended,
             self.playstyle,
             self.api_key,
             self.request_rate,
@@ -232,10 +233,11 @@ class User():
             Nomod_recommended,
             HR_recommended,
             HD_recommended,
-            DTHR_recommended,
+            DT_recommended,
             DTHD_recommended,
-            DTHR_recommended, 
+            DTHR_recommended,
             HRHD_recommended,
+            DTHRHD_recommended,
             playstyle,
             api_key,
             request_rate,
@@ -245,7 +247,7 @@ class User():
             last_irc_patch_used,
             last_time_played,
             osu_id)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, data)
         except Exception as e:
             print('\033[91mFailed to save user (id = {}, name = {})\n{}: {}\033[0m'.format(self.osu_id, self.osu_name, type(e).__name__, e))
@@ -256,6 +258,75 @@ class User():
         connexion.close()
 
         return
+
+    def reset_recommendations(self):
+        """ Reseting all recommendations to 0 """
+
+        self.Nomod_recommended  = ""
+        self.HR_recommended     = ""
+        self.HD_recommended     = ""
+        self.DT_recommended     = ""
+        self.DTHD_recommended   = ""
+        self.DTHR_recommended   = ""
+        self.HRHD_recommended   = ""
+        self.DTHRHD_recommended = ""
+
+        print ('Recommendations for {} reseted !'.format(self.osu_name))
+
+    def get_recommended(self, mods:str, recommended:str = ''):
+        """ Gives the recommended maps for a specific mod """
+        
+        mods = mods.strip('_')
+
+        if (recommended != ''):
+            recommended = ', ' + recommended
+
+        if (mods == 'HR'):
+            if (self.HR_recommended == None):
+                self.HR_recommended = ''
+            self.HR_recommended += recommended
+            return self.HR_recommended
+
+        if (mods == 'HD'):
+            if (self.HD_recommended == None):
+                self.HD_recommended = ''
+            self.HD_recommended += recommended
+            return self.HD_recommended
+
+        if (mods == 'DT'):
+            if (self.DT_recommended == None):
+                self.DT_recommended = ''
+            self.DT_recommended += recommended
+            return self.DT_recommended
+
+        if (mods == 'DTHD'):
+            if (self.DTHD_recommended == None):
+                self.DTHD_recommended = ''
+            self.DTHD_recommended += recommended
+            return self.DTHD_recommended
+
+        if (mods == 'DTHR'):
+            if (self.DTHR_recommended == None):
+                self.DTHR_recommended = ''
+            self.DTHR_recommended += recommended
+            return self.DTHR_recommended
+
+        if (mods == 'HRHD'):
+            if (self.HRHD_recommended == None):
+                self.HRHD_recommended = ''
+            self.HRHD_recommended += recommended
+            return self.HRHD_recommended
+
+        if (mods == 'DTHRHD'):
+            if (self.DTHRHD_recommended == None):
+                self.DTHRHD_recommended = ''
+            self.DTHRHD_recommended += recommended
+            return self.DTHRHD_recommended
+
+        if (self.Nomod_recommended == None):
+                self.Nomod_recommended = ''
+        self.Nomod_recommended += recommended
+        return self.Nomod_recommended
 
     def update_user_stats(self):
         """ Updating user stats """
@@ -280,6 +351,15 @@ class User():
         self.pp_average         = 0
         self.bpm_average        = []
 
+        self.Nomod_playrate  = 0.0
+        self.HR_playrate     = 0.0
+        self.HD_playrate     = 0.0
+        self.DT_playrate     = 0.0
+        self.DTHD_playrate   = 0.0
+        self.DTHR_playrate   = 0.0
+        self.HRHD_playrate   = 0.0
+        self.DTHRHD_playrate = 0.0
+
         for score in userbest:
             
             beatmap = Beatmap(int(score['beatmap_id']))
@@ -299,7 +379,7 @@ class User():
             self.playstyle   += stars.speed / stars.total
 
             #Mods playrate
-
+            
             if (score['enabled_mods'] == '0'):   #None
                 self.Nomod_playrate  += 100.0 / 20.0;
             if (score['enabled_mods'] == '16'):  #HR
@@ -400,5 +480,6 @@ if __name__ == '__main__':
     # --- Test lines !
     user = User(7418575)
     user.update_user_stats()
+    user.reset_recommendations()
     user.save_user_profile()
     user.print_user_profile()

@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import os, sys
+sys.path.append(os.path.realpath('../'))
+
+from libs.user    import User
+from libs.beatmap import Beatmap
+
 import json
 import random
 import sqlite3
-
-from user    import User
-from beatmap import Beatmap
 
 class REngine:
 
@@ -40,8 +43,6 @@ class REngine:
             self.down_precision = 0.0
             self.precision      = 0.0
 
-        return
-
     def select_mod(self, user:User):
         """ Selecting a random mod """
 
@@ -69,24 +70,20 @@ class REngine:
 
         self.recommendatons = []
         self.mods           = []
-        beatmap_ids         = []
  
         #Beatmaps research loop
         while (len(self.recommendatons) < count):
 
             mods = self.select_mod(user)
-            recomended = '00000,' + str(self.recommendatons).replace('[', '').replace(']', '')
 
-            print (recomended)
-
+            #Main beatmap request
             cursor.execute("""SELECT beatmap_id FROM beatmaps WHERE
-                 beatmap_id NOT IN   ({})   AND
                  PP_{}{}    BETWEEN ? AND ? AND
-                 bpm        BETWEEN ? AND ?
+                 bpm        BETWEEN ? AND ? AND
+                 beatmap_id NOT IN ({})
                  LIMIT 1"""
-                 .format(str(self.recommendatons),
-                         max(user.accuracy_average, 97), 
-                         mods),
+                 .format(max(user.accuracy_average, 97), 
+                         mods, "'00000'" + user.get_recommended(mods)),
 
                 [round(user.pp_average  * self.down_precision), 
                  round(user.pp_average  * self.up_percision),
@@ -102,10 +99,16 @@ class REngine:
 
                 if self.precision == 0.0:
                     self.precision = 0.0
-                    break; #Failed to find any beatmap
+                    break #Failed to find any beatmap
             else:
                 self.recommendatons.append(Beatmap(beatmap_id[0]))
                 self.mods.append(mods.replace('_', ''))
+                #Saving the recommendation into the user profile
+                user.get_recommended(mods, "'" + str(beatmap_id[0]) + "'")
+
+        if (len(self.recommendatons) == count):
+            #Saving the users recommendations if everything is fine
+            user.save_user_profile()
 
         return self.recommendatons
 
@@ -115,5 +118,6 @@ if __name__ == '__main__':
     engine = REngine()
     engine.recommend(User(7418575), 10)
     print("Done, here are the results ({}), {}% of precision".format(len(engine.recommendatons), engine.precision * 100))
-    for mod in engine.mods:
-        print(mod)
+    for i in range(10):
+        print(engine.recommendatons[i].beatmap_id, end = ' - ')
+        print(engine.mods[i])
