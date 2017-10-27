@@ -1,6 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
 
-import os, sys
+    Beatmap recommendation algorythm (R Algo)
+    By Renondedju and Jamu
+
+"""
+
+import os
+import sys
+
 sys.path.append(os.path.realpath('../'))
 
 from libs.user    import User
@@ -11,8 +19,10 @@ import random
 import sqlite3
 
 class REngine:
+    """ Recommendation engine """
 
     def __init__(self):
+        """ Init """
 
         self.settings = json.loads(open('../config.json', 'r').read())
         self.database_path = self.settings['database_path']

@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+
+	Mods and modes enums
+
+"""
 from enum import Enum
 
 class Mods(Enum):
 	"""Enums of the mods"""
+
 	none           = 0,
 	NoFail         = 1,
 	Easy           = 2,

@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+    Beatmap library for uso bot
+    By Renondedju and Jamu
+"""
+
 import json
 import sqlite3
 import wget
@@ -8,11 +13,11 @@ import libs.pyttanko
 
 from libs.mods import Mods
 
-from libs.mods import Mods
-
 class Beatmap():
+    """ Beatmaps class """
 
     def __init__(self, beatmap_id:int):
+        """ Init """
 
         #path for later
         self.settings       = json.loads(open('../config.json', 'r').read())
@@ -523,6 +528,7 @@ class Beatmap():
         return 1
 
     def get_bpm(self, beatmap):
+        """ Computes the bpm of this beatmap """
         mpbs = [x.ms_per_beat for x in beatmap.timing_points if x.change]
 
         if len(mpbs) == 0:

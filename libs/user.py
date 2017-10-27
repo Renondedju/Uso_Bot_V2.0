@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+
+"""
+    Osu users library for uso bot
+    By Renondedju and Jamu
+"""
+
 import pyttanko
 import sqlite3
 import asyncio
@@ -14,7 +20,8 @@ class User():
     """ User informations """
 
     def __init__(self, osu_id:int):
-        
+        """ Init """
+
         self.settings = json.loads(open('../config.json', 'r').read())
         self.database_path = self.settings['database_path']
 
@@ -88,9 +95,11 @@ class User():
         if not self.osu_id or not self.database_path:
             return
 
+        #Connecting to database
         connexion = sqlite3.connect(self.database_path)
         cursor = connexion.cursor()
         
+        #Fetching datas from database
         query = cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
         
         #Making a cool looking dictionary
@@ -101,6 +110,7 @@ class User():
             connexion.close()
 
             #No coresponding user, so importing it
+            print ('Importing user id {}'.format(self.osu_id))
             self.update_user_stats()
             self.save_user_profile()
 
@@ -336,10 +346,15 @@ class User():
 
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
 
-        userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)[0]
+        #Fetching datas from bancho api
+        userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)
         userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
 
-        # print (userbest)
+        if (len(userinfo) == 0):
+            print('User id {} does not exists !'.format(self.osu_id))
+            return
+        else:
+            userinfo = userinfo[0]
 
         self.osu_name           = userinfo['username']
         self.rank               = int(userinfo['pp_rank'])
@@ -360,6 +375,7 @@ class User():
         self.HRHD_playrate   = 0.0
         self.DTHRHD_playrate = 0.0
 
+        #Main loop
         for score in userbest:
             
             beatmap = Beatmap(int(score['beatmap_id']))
@@ -410,8 +426,11 @@ class User():
         return
 
     def get_pyttanko(self, bmap, mods:int, n300:int, n100:int, n50:int, nmiss:int, combo:int):
+        """ PP calculation function """
+
         stars = pyttanko.diff_calc().calc(bmap, mods=mods)
         pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=int(mods), n300=int(n300), n100=int(n100), n50=int(n50), nmiss=int(nmiss), combo=int(combo))
+        
         return (pp, stars)
 
     def print_user_profile(self):
@@ -478,7 +497,7 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(7418575)
+    user = User(25444588487)
     user.update_user_stats()
     user.reset_recommendations()
     user.save_user_profile()

@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
+"""
+	Server library for Uso bot
+	By Renondedju and Jamu
+"""
 import sqlite3
 
 class Server():
 	"""Server informations"""
 
 	def __init__(self, discord_id:int, database_path:str):
-
+		""" Init """
 		#Basic parameters
 		self.discord_id 	= discord_id
 		self.server_name 	= None
@@ -28,6 +32,7 @@ class Server():
 		if not self.discord_id or not self.database_path:
 			return
 
+		#Connexion to the database
 		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 		
@@ -55,6 +60,7 @@ class Server():
 		if not self.discord_id or not self.database_path:
 			return
 
+		#Connexion to the database
 		connexion = sqlite3.connect(self.database_path)
 		cursor = connexion.cursor()
 

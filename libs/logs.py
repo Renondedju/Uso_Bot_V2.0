@@ -1,12 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+
+	Logging system for uso bot
+	By Renondedju and Jamu
+
+"""
+
 import json
 import requests
+
 from datetime import datetime
-from user import User
-from server import Server
+from user     import User
+from server   import Server
 
 class Log():
+	""" Logs system """
 
 	def __init__(self):
+		""" Init """
 
 		self.settings = json.loads(open('../config.json', 'r').read())
 		self.payload = { 'embeds' : [] }
@@ -136,11 +147,13 @@ class Log():
 
 		return response.status_code
 
-logs = Log()
-logs.add_debug_log('Example logs are following ...')
-logs.send_logs()
-logs.add_warning_log('Starting irc script')
-logs.add_debug_log('Connecting to irc.ppy.sh:6667')
-logs.send_logs()
-logs.add_debug_log('Connected !')
-logs.send_logs()
+if __name__ == '__main__':
+    #Test code
+	logs = Log()
+	logs.add_debug_log('Example logs are following ...')
+	logs.send_logs()
+	logs.add_warning_log('Starting irc script')
+	logs.add_debug_log('Connecting to irc.ppy.sh:6667')
+	logs.send_logs()
+	logs.add_debug_log('Connected !')
+	logs.send_logs()
