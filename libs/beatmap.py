@@ -9,7 +9,7 @@ import sqlite3
 import wget
 import os, sys
 sys.path.append(os.path.realpath('../'))
-import libs.pyttanko
+import pyttanko
 
 from libs.mods import Mods
 
@@ -556,7 +556,7 @@ if __name__ == '__main__':
     #Importing beatmaps !
     count = 0
     try:
-        for btm in range(300000, 500000):
+        for btm in range(304000, 500000):
             print(btm, end='')
             beatmap = Beatmap(btm)
             if (beatmap.import_beatmap()):
