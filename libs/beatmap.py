@@ -471,7 +471,14 @@ class Beatmap():
 
         try:
             beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
+
+            #Removing our download if the beatmap mode isn't std (0)
+            if (beatmap.mode != 0):
+                os.remove("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
+                return 0
+
             peppers    = self.use_pyttanko(beatmap)
+
         except:
             return 0
 
@@ -556,7 +563,7 @@ if __name__ == '__main__':
     #Importing beatmaps !
     count = 0
     try:
-        for btm in range(304000, 500000):
+        for btm in range(307000, 500000):
             print(btm, end='')
             beatmap = Beatmap(btm)
             if (beatmap.import_beatmap()):
