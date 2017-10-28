@@ -415,7 +415,7 @@ class Beatmap():
             #If the file we just downloaded is empty (meaning that this beatmap does not exists)
             #Just deleting it
 
-            if (file.readlines() == ''):
+            if (file.readline() == ''):
                 os.remove("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
             file.close()
         
@@ -554,11 +554,16 @@ class Beatmap():
 if __name__ == '__main__':
 
     #Importing beatmaps !
-    for btm in range(300000, 500000):
-        print(btm, end='')
-        beatmap = Beatmap(btm)
-        if (beatmap.import_beatmap()):
-            beatmap.save_beatmap()
-            print(' - Done')
-        else:
-            print(' - Failed')
+    count = 0
+    try:
+        for btm in range(300000, 500000):
+            print(btm, end='')
+            beatmap = Beatmap(btm)
+            if (beatmap.import_beatmap()):
+                beatmap.save_beatmap()
+                print(' - Done')
+                count += 1
+            else:
+                print(' - Failed')
+    except KeyboardInterrupt:
+        print ('\n\nAdded {} beatmaps'.format(count))
