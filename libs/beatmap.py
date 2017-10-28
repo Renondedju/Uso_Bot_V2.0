@@ -409,6 +409,16 @@ class Beatmap():
 
         if not self.beatmap_exists():
             wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id), bar=None)
+            
+            file = open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
+
+            #If the file we just downloaded is empty (meaning that this beatmap does not exists)
+            #Just deleting it
+
+            if (file.readlines() == ''):
+                os.remove("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
+            file.close()
+        
         else:
             return True
 
@@ -543,10 +553,10 @@ class Beatmap():
 
 if __name__ == '__main__':
 
-    #Importing all of our beatmaps !
-    for btm in os.listdir('../beatmaps/beatmaps'):
+    #Importing beatmaps !
+    for btm in range(300000, 500000):
         print(btm, end='')
-        beatmap = Beatmap(int(btm[:-4]))
+        beatmap = Beatmap(btm)
         if (beatmap.import_beatmap()):
             beatmap.save_beatmap()
             print(' - Done')
