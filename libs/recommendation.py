@@ -13,6 +13,7 @@ sys.path.append(os.path.realpath('../'))
 
 from libs.user    import User
 from libs.beatmap import Beatmap
+from libs.preset  import Preset
 
 import json
 import random

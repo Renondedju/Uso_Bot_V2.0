@@ -9,7 +9,8 @@ import os
 import sys
 sys.path.append(os.path.realpath('../'))
 
-from user import User
+from libs.user import User
+from libs.mods import Mods
 
 class Preset:
     """ Preset class """
@@ -46,7 +47,15 @@ class Preset:
         self.ar         = self.user.ar_average
         self.cs         = self.user.cs_average
 
-        self.mods = None
+        self.mods       = {
+            'Nomod'   : self.user.Nomod_playrate,
+             'HR'     : self.user.HR_playrate,
+             'HD'     : self.user.HD_playrate,
+             'DT'     : self.user.DT_playrate,
+             'DTHD'   : self.user.DTHD_playrate,
+             'DTHR'   : self.user.DTHR_playrate,
+             'HRHD'   : self.user.HRHD_playrate,
+             'DTHRHD' : self.user.DTHRHD_playrate}
 
     def set_training_mode(self, power:float):
         """ --- Set the preset to gereral training mode
@@ -101,9 +110,41 @@ class Preset:
 
         self.playstyle = self.user.playstyle / power
 
+    def select_mods(self, mods:int):
+        """ Selects a mod for the preset """
+
+        selected_mods = 'Nomod'
+
+        if mods == Mods.HardRock:
+            selected_mods = 'HR'
+        elif mods == Mods.Hidden:
+            selected_mods = 'HD'
+        elif mods == Mods.DoubleTime:
+            selected_mods = 'DT'
+        elif mods == Mods.DoubleTime | Mods.Hidden:
+            selected_mods = 'DTHD'
+        elif mods == Mods.DoubleTime | Mods.HardRock:
+            selected_mods = 'DTHR'
+        elif mods == Mods.HardRock | Mods.Hidden:
+            selected_mods = 'HRHD'
+        elif mods == Mods.DoubleTime | Mods.HardRock | Mods.Hidden:
+            selected_mods = 'DTHRHD'
+
+        for mod in self.mods:
+            if (mod == selected_mods):
+                self.mods[mod] = 100.0
+            else:
+                self.mods[mod] = 0.0
+
+        return
+
 if __name__ == '__main__':
+    #Just some test lines 
+
     peppy = User(2)
     preset = Preset(peppy, 'stream', 1.05)
     print (preset.mode)
     print (peppy.playstyle)
     print (preset.playstyle)
+    preset.select_mods(Mods.Hidden)
+    print (preset.mods['HD'])
