@@ -574,6 +574,25 @@ def mods_str(mods):
 
     return res
 
+def mods_bit(mods):
+    '''gets bitwise representation of mods, such as 24.
+    returns "0" for nomod'''
+    if mods == "nomod":
+        return 0
+
+    res = 0
+
+    if "HD" in mods: res += MODS_HD
+    if "HT" in mods: res += MODS_HT
+    if "HR" in mods: res += MODS_HR
+    if "EZ" in mods: res += MODS_EZ
+    if "NC" in mods: res += MODS_NC
+    if "DT" in mods: res += MODS_DT
+    if "FL" in mods: res += MODS_FL
+    if "SO" in mods: res += MODS_SO
+    if "NF" in mods: res += MODS_NF
+
+    return res
 
 def mods_apply(mods, ar = None, od = None, cs = None, hp = None):
     ''' calculates speed multiplier, ar, od, cs, hp with the given
