@@ -5,16 +5,18 @@
     By Renondedju and Jamu
 """
 
-import pyttanko
+import os
+import sys
+import json
 import sqlite3
 import asyncio
-import json
-import os, sys
+
 sys.path.append(os.path.realpath('../'))
 
 from libs.osuapi  import get_user, get_user_best
 from libs.beatmap import Beatmap
 from libs.mods    import Mode, Mods
+from libs         import pyttanko
 
 class User():
     """ User informations """
@@ -22,7 +24,7 @@ class User():
     def __init__(self, osu_id:int):
         """ Init """
 
-        self.settings = json.loads(open('../config.json', 'r').read())
+        self.settings      = json.loads(open('../config.json', 'r').read())
         self.database_path = self.settings['database_path']
 
         #Logs infos
@@ -85,10 +87,11 @@ class User():
 
         self.load_user_profile()
 
-    def set_logs_infos(self, discord_name:str, discord_icon:str):
+    def set_logs_infos(self, discord_name:str, discord_icon:str, discord_id:int):
         """ Seting discord_name and discord_icon"""
         self.discord_icon = discord_icon
         self.discord_name = discord_name
+        self.discord_id   = discord_id
 
     def load_user_profile(self):
         """ Loading a user profile from the database """

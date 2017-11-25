@@ -10,8 +10,8 @@ import os, sys
 
 sys.path.append(os.path.realpath('../'))
 
-from libs.osuapi import *
-from libs.user import User
+from libs.osuapi  import *
+from libs.user    import User
 from libs.beatmap import Beatmap
 
 class _User:

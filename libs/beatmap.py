@@ -4,13 +4,15 @@
     By Renondedju and Jamu
 """
 
+import os
+import sys
+import wget
 import json
 import sqlite3
-import wget
-import os, sys
-sys.path.append(os.path.realpath('../'))
-import pyttanko
 
+sys.path.append(os.path.realpath('../'))
+
+from libs      import pyttanko
 from libs.mods import Mods
 
 class Beatmap():
@@ -446,7 +448,8 @@ class Beatmap():
 
                 n300, n100, n50 = pyttanko.acc_round(acc, len(beatmap.hitobjects), 0)
                 stars = pyttanko.diff_calc().calc(beatmap, mods=mod)
-                pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=beatmap, mods=mod, n300=n300, n100=n100, n50=n50, nmiss=0)
+                pp, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed,
+                    bmap=beatmap, mods=mod, n300=n300, n100=n100, n50=n50, nmiss=0)
                 peppers[pyttanko.mods_str(mod), str(acc)] = (pp, stars)
 
         return peppers
@@ -474,7 +477,7 @@ class Beatmap():
             return 0
 
         try:
-            beatmap    = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
+            beatmap = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
 
             #Removing our download if the beatmap mode isn't std (0)
             if (beatmap.mode != 0):
