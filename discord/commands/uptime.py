@@ -7,7 +7,7 @@ class Uptime:
         self.bot = bot
 
     @commands.command()
-    async def uptime(self):
+    async def uptime(self, ctx):
         timeago = datetime(1,1,1) + (self.bot.uptime - datetime.now())
         botuptime = "Bot has been up for "
         if timeago.year-1 != 0:
@@ -21,7 +21,7 @@ class Uptime:
         if timeago.minute != 0:
             botuptime += "{} Minute{} ".format(timeago.minute, 's' if timeago.minute != 1 else '')
         botuptime += "{} Second{}".format(timeago.second, 's' if timeago.second != 1 else '')
-        self.bot.say(botuptime)
+        await ctx.message.channel.send(botuptime)
 
 def setup(bot):
     bot.add_cog(Uptime(bot))

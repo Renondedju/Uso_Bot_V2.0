@@ -24,9 +24,9 @@ class Map:
         mapid = input.replace('https://osu.ppy.sh/b/', '').split('?')[0]
         bmdb = Beatmap(mapid)
         bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
-        await self.map_embed(bmdb, bmap, pyttanko.mods_bit(mods.lower()))
+        await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_bit(mods.lower()))
 
-    async def map_embed(self, bmdb, bmap, mods):
+    async def map_embed(self, ctx, bmdb, bmap, mods):
         # Gets the stars and pp values for the map with the given mods
         stars = pyttanko.diff_calc().calc(bmap, mods=mods)
         pp100, pp99, pp98 = await self.get_pp_by_acc(bmap, stars, mods)
@@ -51,7 +51,7 @@ class Map:
             pp98, pp99, pp100)
         em = discord.Embed(description=info, colour=0x00FFC0)
         em.set_author(name=bmdb.artist + ' - ' + bmdb.title + ' by ' + bmdb.creator)
-        await self.bot.say(embed=em)
+        await ctx.message.channel.send(embed=em)
 
     async def get_pp_by_acc(self, bmap, stars, mods):
         """Uses pyttanko to get the pp for 98%, 99% and 100% accs"""

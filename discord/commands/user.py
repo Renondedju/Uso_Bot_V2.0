@@ -18,7 +18,7 @@ class _User:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def user(self, ctx, *, user=None):
         """ Bot command """
         if not user:
@@ -76,7 +76,7 @@ class _User:
 
         em.set_thumbnail(url='https://a.ppy.sh/{}'.format(user['user_id']))
 
-        await self.bot.say(embed=em)
+        await ctx.message.channel.send(embed=em)
 
 def setup(bot):
     bot.add_cog(_User(bot))
