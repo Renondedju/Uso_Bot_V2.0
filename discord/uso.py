@@ -1,9 +1,15 @@
 from discord.ext import commands
 from datetime    import datetime
+from threading   import Thread
 
-import asyncio, json, sys
-import logging, traceback
-import discord, uvloop
+import sys
+import json
+import time
+import uvloop
+import discord
+import asyncio
+import logging
+import traceback
 
 import os, sys
 
@@ -66,14 +72,22 @@ async def _help(ctx):
 
 # --- BOT CHECKS ---
 
+# This function is a thread
+run_thread = True
+def send_logs():
+    """ Sending logs every 10 Sec to avoid slowing down commands """
+    while run_thread:
+        time.sleep(10)
+        logs.send_logs()
+
 @bot.check
 async def command_check(ctx):
+    """ Creating logs for each command """
     user = User(0)
     user.set_logs_infos(ctx.message.author.name,
                         ctx.message.author.avatar,
                         ctx.message.author.id)
     logs.add_log(user, ctx.message.content)
-    logs.send_logs() # TODO send logs every 5 sec or more
     return True
 
 # --- BOT EVENTS ---
@@ -132,9 +146,16 @@ async def on_ready():
         except: bot.logger.exception(sys.exc_info())
 
 # Running the bot
+logs_thread = Thread(target=send_logs)
+logs_thread.start()
+
 bot.run(bot.settings['discord_token'])
 
 # On disconnexion 
+run_thread = False
+logs_thread.join()
 
 logs.add_warning_log('Logged out !')
 logs.send_logs()
+
+print('Uso discord exited')
