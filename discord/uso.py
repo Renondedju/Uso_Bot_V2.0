@@ -73,7 +73,7 @@ async def command_check(ctx):
                         ctx.message.author.avatar,
                         ctx.message.author.id)
     logs.add_log(user, ctx.message.content)
-    logs.send_logs()
+    logs.send_logs() # TODO send logs every 5 sec or more
     return True
 
 # --- BOT EVENTS ---
@@ -81,18 +81,26 @@ async def command_check(ctx):
 #On command error
 @bot.event
 async def on_command_error(ctx, error):
-    logs.add_error_log()
     if (ctx.command):
-        errormsg  = '```n {}:\n'.format(ctx.command.qualified_name)
-        errormsg += '{}: {}```\n'.format(error.original.__class__.__name__, error.original)
-        errormsg += 'Ask about it here for more information: https://discord.gg/Qsw3yD5'
-        await ctx.send(errormsg)
+        errors = traceback.format_exception(type(error), error, error.__traceback__)
+        output = ''
+        for line in errors:
+            output += line
+
+        user = User(0)
+        user.set_logs_infos(ctx.message.author.name,
+                        ctx.message.author.avatar,
+                        ctx.message.author.id)
+        logs.add_error_log(user, 'On command {}'.format(ctx.command.qualified_name), output)
+        logs.send_logs()
+        await ctx.send('Error message here !')
         bot.logger.exception(type(error).__name__, exc_info=error)
 
 # On guild create
 @bot.event
 async def on_guild_create(guild):
     logs.add_server_log('added', guild)
+    logs.send_logs()
     await dblpost()
 
 #TODO test thoses logs (discord v1.0.0)
@@ -101,6 +109,7 @@ async def on_guild_create(guild):
 @bot.event
 async def on_guild_remove(guild):
     logs.add_server_log('removed', guild)
+    logs.send_logs()
     await dblpost()
 
 async def dblpost():
@@ -112,9 +121,10 @@ async def dblpost():
 # On ready
 @bot.event
 async def on_ready():
-    print('\nLogged in as {}\nI can see {} users in {} servers'.format(
-        bot.user,  len(list(bot.get_all_members())),
+    logs.add_warning_log('Logged in as {}\nI can see {} users in {} servers'.format(
+        bot.user.mention,  len(list(bot.get_all_members())),
         len(bot.guilds)))
+    logs.send_logs()
 
     bot.uptime = datetime.now()
     for cog in bot.settings['cogs']:
@@ -123,3 +133,8 @@ async def on_ready():
 
 # Running the bot
 bot.run(bot.settings['discord_token'])
+
+# On disconnexion 
+
+logs.add_warning_log('Logged out !')
+logs.send_logs()

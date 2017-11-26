@@ -25,7 +25,7 @@ class Log():
         """ Init """
 
         self.settings = json.loads(open('../config.json', 'r').read())
-        self.payload = {'embeds': []}
+        self.payload  = {'embeds': []}
 
     def add_log(self, user, description):
         """ Adding a simple log to the payloads """
