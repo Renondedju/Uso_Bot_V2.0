@@ -24,7 +24,7 @@ put pyttanko.py in your project's folder and import pyttanko
 for example usage, check out the __main__ at the bottom of the file
 you can run it like:
 
-    cat /path/to/map.osu | ./pyttanko.py
+    cat /path/to/map.osu | ./pyttanko.py +HDDT 200x 1m 95%
 
 also, check out "pydoc pyttanko" for full documentation
 -------------------------------------------------------------------
@@ -33,7 +33,7 @@ domain. check the attached UNLICENSE or http://unlicense.org/
 '''
 
 __author__ = "Franc[e]sco <lolisamurai@tfwno.gf>"
-__version__ = "1.0.10"
+__version__ = "1.0.14"
 
 import sys
 import math
@@ -193,6 +193,7 @@ class beatmap:
         # i tried pre-allocating hitobjects and timing_points
         # as well as object data.
         # it didn't show any appreciable performance improvement
+        self.format_version = 1
         self.hitobjects = []
         self.timing_points = []
         '''these are assumed to be ordered by time low to high'''
@@ -274,6 +275,8 @@ class beatmap:
                     sv_multiplier = (-100.0 / t.ms_per_beat)
 
                 px_per_beat = self.sv * 100.0 * sv_multiplier
+                if self.format_version < 8:
+                    px_per_beat /= sv_multiplier
 
 
             # slider ticks
@@ -303,15 +306,6 @@ class beatmap:
 
 ''' ----------------------------------------------------------- '''
 ''' beatmap parser                                              '''
-
-def is_beatmap(osu_file):
-    '''reads the first line of osu_file and returns True if it
-    matches the osu! magic string'''
-    OSU_MAGIC = "osu file format v"
-    l = osu_file.readline()
-    # some .osu files might include a utf-8 BOM if curl'd
-    return l.find(OSU_MAGIC) < 4
-
 
 class parser:
     '''beatmap parser.
@@ -492,15 +486,21 @@ class parser:
         f = osu_file
         self.done = False
 
-        if not is_beatmap(f):
-            raise ValueError("not a valid beatmap file")
-
         section = ""
         b = bmap
         if b == None:
             b = beatmap()
         else:
             b.reset()
+
+        line = osu_file.readline()
+
+        OSU_MAGIC = "osu file format v"
+        # some .osu files might include a utf-8 BOM if curl'd
+        findres = line.strip().find(OSU_MAGIC)
+        if findres < 0 or findres >= 4:
+            raise ValueError("not a valid beatmap file")
+        b.format_version = int(line[findres+len(OSU_MAGIC):])
 
         for line in osu_file:
             self.nline += 1
@@ -546,6 +546,7 @@ class parser:
 MODS_NOMOD = 0
 MODS_NF = 1<<0
 MODS_EZ = 1<<1
+MODS_TOUCH_DEVICE = 1<<2
 MODS_HD = 1<<3
 MODS_HR = 1<<4
 MODS_DT = 1<<6
@@ -566,6 +567,7 @@ def mods_str(mods):
     if mods & MODS_HT != 0: res += "HT"
     if mods & MODS_HR != 0: res += "HR"
     if mods & MODS_EZ != 0: res += "EZ"
+    if mods & MODS_TOUCH_DEVICE != 0: res += "TD"
     if mods & MODS_NC != 0: res += "NC"
     if mods & MODS_DT != 0: res += "DT"
     if mods & MODS_FL != 0: res += "FL"
@@ -574,25 +576,26 @@ def mods_str(mods):
 
     return res
 
-def mods_bit(mods):
-    '''gets bitwise representation of mods, such as 24.
-    returns "0" for nomod'''
-    if mods == "nomod":
-        return 0
+
+def mods_from_str(mods_str):
+    '''get mods bitmask from their string representation
+    (touch device is TD)'''
 
     res = 0
 
-    if "HD" in mods: res += MODS_HD
-    if "HT" in mods: res += MODS_HT
-    if "HR" in mods: res += MODS_HR
-    if "EZ" in mods: res += MODS_EZ
-    if "NC" in mods: res += MODS_NC
-    if "DT" in mods: res += MODS_DT
-    if "FL" in mods: res += MODS_FL
-    if "SO" in mods: res += MODS_SO
-    if "NF" in mods: res += MODS_NF
+    if "HD" in mods_str: res |= MODS_HD
+    if "HT" in mods_str: res |= MODS_HT
+    if "HR" in mods_str: res |= MODS_HR
+    if "EZ" in mods_str: res |= MODS_EZ
+    if "TD" in mods_str: res |= MODS_TOUCH_DEVICE
+    if "NC" in mods_str: res |= MODS_NC
+    if "DT" in mods_str: res |= MODS_DT
+    if "FL" in mods_str: res |= MODS_FL
+    if "SO" in mods_str: res |= MODS_SO
+    if "NF" in mods_str: res |= MODS_NF
 
     return res
+
 
 def mods_apply(mods, ar = None, od = None, cs = None, hp = None):
     ''' calculates speed multiplier, ar, od, cs, hp with the given
@@ -922,6 +925,8 @@ class diff_calc:
 
         self.speed = math.sqrt(self.speed) * STAR_SCALING_FACTOR
         self.aim = math.sqrt(self.aim) * STAR_SCALING_FACTOR
+        if mods & MODS_TOUCH_DEVICE != 0:
+            self.aim = pow(self.aim, 0.8)
 
         # total stars
         self.total = self.aim + self.speed
@@ -1189,15 +1194,49 @@ def ppv2(
 if __name__ == "__main__":
     import traceback
 
+    mods = 0
+    acc_percent = 100.0
+    combo = 300
+    nmiss = 0
+
+    # get mods, acc, combo, misses from command line arguments
+    # format: +HDDT 95% 300x 1m
+    for arg in sys.argv:
+        if arg.startswith("+"):
+            mods = mods_from_str(arg[1:])
+        elif arg.endswith("%"):
+            acc_percent = float(arg[:-1])
+        elif arg.endswith("x"):
+            combo = int(arg[:-1])
+        elif arg.endswith("m"):
+            nmiss = int(arg[:-1])
+
+
     try:
         p = parser()
         bmap = p.map(sys.stdin)
-        stars = diff_calc().calc(bmap)
+
+        print("%s - %s [%s]" % (bmap.artist, bmap.title,
+            bmap.version))
+        stars = diff_calc().calc(bmap, mods)
         print("max combo: %d\n" % (bmap.max_combo()))
         print(stars)
+
+        # round acc percent to the closest 300/100/50 count
+        n300, n100, n50 = acc_round(acc_percent,
+            len(bmap.hitobjects), nmiss)
+
+        # ppv2 returns a tuple (pp, aim, speed, acc, percent)
         print("%g pp (%g aim, %g speed, %g acc) for %g%%" % (
-            ppv2(stars.aim, stars.speed, bmap=bmap)
-        )) # ppv2 returns a tuple (pp, aim, speed, acc, percent)
+            ppv2(
+                aim_stars=stars.aim,
+                speed_stars=stars.speed,
+                bmap=bmap,
+                n300=n300, n100=n100, n50=n50, nmiss=nmiss,
+                mods=mods,
+                combo=combo,
+            )
+        ))
 
     except KeyboardInterrupt:
         pass
