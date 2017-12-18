@@ -2,6 +2,7 @@ from discord.ext import commands
 
 import discord
 import asyncio
+import memcache
 import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -10,9 +11,10 @@ import os, sys
 
 sys.path.append(os.path.realpath('../'))
 
-from libs.osuapi  import *
-from libs.user    import User
-from libs.beatmap import Beatmap
+from libs.osuapi       import *
+from libs.user         import User
+from libs.beatmap      import Beatmap
+from libs.userlink_key import userlink
 
 class Link_User:
     def __init__(self, bot):

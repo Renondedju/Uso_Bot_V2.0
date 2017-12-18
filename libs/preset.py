@@ -72,7 +72,7 @@ class Preset:
         """ --- Set the preset to stamina mode
 
             Stamina training mode is harder on the bpm speed as well
-            as the lenght of the map.
+            as the length of the map.
         """
 
         self.reset()

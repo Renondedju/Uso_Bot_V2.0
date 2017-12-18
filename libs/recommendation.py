@@ -28,6 +28,9 @@ class REngine:
         self.settings = json.loads(open('../config.json', 'r').read())
         self.database_path = self.settings['database_path']
 
+        # Mod selection
+        self.weighted_choice = lambda s : random.choice(sum(([v]*int(wt) for v,wt in s),[]))
+
         #Just a simple container
         self.recommendatons = []
         self.mods           = []
@@ -67,9 +70,9 @@ class REngine:
                        user.DTHRHD_playrate)
 
         mods_name  = ("", "_HR", "_HD", "_DT", "_DTHD", "_DTHR", "_HRHD", "_DTHRHD")
-        dictionary = dict(zip(mods_name, mods_chance))
+        dictionary = zip(mods_name, mods_chance)
 
-        return random.choice([k for k in dictionary for dummy in range(dictionary[k])])
+        return self.weighted_choice(dictionary)
 
     def recommend(self, user:User, count:int):
         """ R Algo """

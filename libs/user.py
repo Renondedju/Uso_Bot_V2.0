@@ -50,6 +50,7 @@ class User():
         self.len_average        = 0 #Drain
 
         #Mods playrate
+        self.playrate_dict      = {}
         self.Nomod_playrate     = 0
         self.HR_playrate        = 0
         self.HD_playrate        = 0
@@ -359,6 +360,7 @@ class User():
         else:
             userinfo = userinfo[0]
 
+        self.osu_id             = userinfo['user_id']
         self.osu_name           = userinfo['username']
         self.rank               = int(userinfo['pp_rank'])
         self.playstyle          = 0
@@ -369,6 +371,7 @@ class User():
         self.pp_average         = 0
         self.bpm_average        = []
 
+        self.playrate_dict   = {}
         self.Nomod_playrate  = 0.0
         self.HR_playrate     = 0.0
         self.HD_playrate     = 0.0
@@ -398,23 +401,35 @@ class User():
             self.playstyle   += stars.speed / stars.total
 
             #Mods playrate
-            
-            if (score['enabled_mods'] == '0'):   #None
-                self.Nomod_playrate  += 100.0 / 20.0;
-            if (score['enabled_mods'] == '16'):  #HR
-                self.HR_playrate     += 100.0 / 20.0;
-            if (score['enabled_mods'] == '8'):   #HD
-                self.HD_playrate     += 100.0 / 20.0;
-            if (score['enabled_mods'] == '64'):  #DT
-                self.DT_playrate     += 100.0 / 20.0;
-            if (score['enabled_mods'] == '72'):  #DTHD
-                self.DTHD_playrate   += 100.0 / 20.0;
-            if (score['enabled_mods'] == '80'):  #DTHR
-                self.DTHR_playrate   += 100.0 / 20.0;
-            if (score['enabled_mods'] == '24'):  #HRHD
-                self.HRHD_playrate   += 100.0 / 20.0;
-            if (score['enabled_mods'] == '88'):  #DTHDHR
-                self.DTHRHD_playrate += 100.0 / 20.0;
+
+            mod = pyttanko.mods_str(int(score['enabled_mods']))
+
+            if mod not in self.playrate_dict: self.playrate_dict[mod] = 100.0 / 20.0
+            else: self.playrate_dict[mod] += 100.0 / 20.0
+
+        if 'nomod' in self.playrate_dict:   #None
+            self.Nomod_playrate   = self.playrate_dict['nomod']
+        if 'HR' in self.playrate_dict:      #HR
+            self.HR_playrate      = self.playrate_dict['HR']
+        if 'HD' in self.playrate_dict:      #HD
+            self.HD_playrate      = self.playrate_dict['HD']
+        if 'DT' in self.playrate_dict:      #DT
+            self.DT_playrate      = self.playrate_dict['DT']
+        if 'HDDT' in self.playrate_dict:    #HDDT
+            self.DTHD_playrate    = self.playrate_dict['HDDT']
+        if 'HRDT' in self.playrate_dict:    #HRDT
+            self.DTHR_playrate    = self.playrate_dict['HRDT']
+        if 'HDHR' in self.playrate_dict:    #HDHR
+            self.HRHD_playrate    = self.playrate_dict['HDHR']
+        if 'HDHRDT' in self.playrate_dict:  #HDHRDT
+            self.DTHRHD_playrate  = self.playrate_dict['HDHR']
+        # Nightcore should be considered Double Time to uso
+        if 'NC' in self.playrate_dict:      #NC
+            self.DT_playrate     += self.playrate_dict['NC']
+        if 'HDNC' in self.playrate_dict:    #HDNC
+            self.DTHD_playrate   += self.playrate_dict['HDNC']
+        if 'HDHRNC' in self.playrate_dict:  #HDHRNC
+            self.DTHRHD_playrate += self.playrate_dict['HDHRNC']
 
         self.playstyle          /= 20.0
         self.pp_average         = round(self.pp_average / 20.0)
