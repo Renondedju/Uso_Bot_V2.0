@@ -2,9 +2,17 @@
 # TODO list
 
 > Dear god, why ? щ（ﾟДﾟщ）
+
+[Back to index](index.md)
+
+[Uso framework](#uso-framework)
+[Discord](#discord)
+[IRC](#irc)
+[API](#api)
+
 -----------
 
-##Uso framework
+## Uso framework ##
 
 > Main uso libraries
 
@@ -13,19 +21,19 @@
 - [ ] User auto update
 - [ ] Write the doc (lol)
 
-##Discord
+## Discord ##
 
 > Discord bot
 
 - [x] todo
 
-##IRC
+## IRC ##
 
 > Ingame bot
 
 - [x] todo
 
-##API
+## API ##
 
 > Api module
 

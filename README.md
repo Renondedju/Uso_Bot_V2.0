@@ -1,8 +1,10 @@
-# Uso_Bot_V2.0
-Here is Uso! bot 2.0 !
+# Uso Bot v2.0
 
-Current devs : Renondedju, ('J', 'a', 'm', 'u'), Prideco, and capu
+------
 
-Join our discord server here : https://discord.gg/Qsw3yD5
+> Uso bot is a beatmap recommendation bot for both discord and the ingame osu chat
+> The bot is also avaliable as an api
 
-Invite the bot to your server here :  https://discordapp.com/oauth2/authorize?client_id=318357311951208448&scope=bot&permissions=281600
+[Discord server](https://discord.gg/Qsw3yD5)
+[Invite link](https://discordapp.com/oauth2/authorize?client_id=318357311951208448&scope=bot&permissions=281600)
+[Documentation](https://renondedju.github.io/Uso_Bot_V2.0/)
