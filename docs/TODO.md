@@ -5,10 +5,10 @@
 
 [Back to index](index.md)
 
-[Uso framework](#uso-framework)
-[Discord](#discord)
-[IRC](#irc)
-[API](#api)
+[Uso framework](#uso-framework)  
+[Discord](#discord)  
+[IRC](#irc)  
+[API](#api)  
 
 -----------
 
