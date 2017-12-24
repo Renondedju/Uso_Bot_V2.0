@@ -12,13 +12,14 @@ import sqlite3
 
 sys.path.append(os.path.realpath('../'))
 
-from libs      import pyttanko
-from libs.mods import Mods
+from libs        import pyttanko
+from libs.mods   import Mods
+from libs.osuapi import get_beatmap
 
 class Beatmap():
     """ Beatmaps class """
 
-    def __init__(self, beatmap_id:int):
+    def __init__(self, beatmap_id: int):
         """ Init """
 
         #path for later
@@ -492,6 +493,13 @@ class Beatmap():
         if (round(peppers['nomod', '100'][1].total, 2) == 0):
             return 0
 
+        #The beatmap seems to be fine, fetching api datas
+        api_data = get_beatmap(self.settings['osu_api_key'], self.beatmap_id)
+        if (api_data[0]):
+            api_data = api_data[0]
+        else:
+            return 0
+
         self.difficultyrating   = round(peppers['nomod', '100'][1].total, 2)
         self.aim_stars          = round(peppers['nomod', '100'][1].aim,   2)
         self.speed_stars        = round(peppers['nomod', '100'][1].speed, 2)
@@ -504,8 +512,14 @@ class Beatmap():
         self.diff_approach      = beatmap.ar
         self.diff_drain         = beatmap.hp
 
-        self.total_length       = beatmap.hitobjects[-1].time - beatmap.hitobjects[0].time
-        self.hit_length         = self.total_length #Need to figure this out :D
+        self.beatmapset_id      = api_data['beatmapset_id']
+        self.approved_date      = api_data['approved_date']
+        self.total_length       = api_data['total_length']
+        self.last_update        = api_data['last_update']
+        self.hit_length         = api_data['hit_length']
+        self.approved           = api_data['approved']
+        self.tags               = api_data['tags']
+
         self.max_combo          = beatmap.max_combo()
         self.artist             = beatmap.artist
         self.creator            = beatmap.creator
@@ -566,18 +580,8 @@ class Beatmap():
         return 60000 / mpb
 
 if __name__ == '__main__':
-
-    #Importing beatmaps !
-    count = 0
-    try:
-        for btm in range(312884, 500000):
-            print(btm, end='')
-            beatmap = Beatmap(btm)
-            if (beatmap.import_beatmap()):
-                beatmap.save_beatmap()
-                print(' - Done')
-                count += 1
-            else:
-                print(' - Failed')
-    except KeyboardInterrupt:
-        print ('\n\nAdded {} beatmaps'.format(count))
+    beatmap = Beatmap(1481618)
+    if(beatmap.import_beatmap()):
+        beatmap.save_beatmap()
+    
+    print ("Done !")
