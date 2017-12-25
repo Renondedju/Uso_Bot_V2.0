@@ -465,16 +465,16 @@ class Beatmap():
 
         connexion.close()
 
-        return len(result) == 1;
+        return len(result) == 1
 
-    def import_beatmap(self):
+    def import_beatmap(self, update: bool = True):
         """ Imports a beatmap into the database """
 
         #Check if the beatmap is already in the database
         self.download_beatmap()
 
         #Checking ig the beatmap is already imported
-        if(self.in_database()):
+        if(self.in_database() and update):
             return 0
 
         try:
@@ -485,7 +485,7 @@ class Beatmap():
                 os.remove("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
                 return 0
 
-            peppers    = self.use_pyttanko(beatmap)
+            peppers = self.use_pyttanko(beatmap)
 
         except:
             return 0
@@ -506,7 +506,6 @@ class Beatmap():
 
         self.playstyle          = self.speed_stars / self.difficultyrating
 
-        self.bpm                = self.get_bpm(beatmap)
         self.diff_size          = beatmap.cs
         self.diff_overall       = beatmap.od
         self.diff_approach      = beatmap.ar
@@ -519,6 +518,7 @@ class Beatmap():
         self.hit_length         = api_data['hit_length']
         self.approved           = api_data['approved']
         self.tags               = api_data['tags']
+        self.bpm                = api_data['bpm']
 
         self.max_combo          = beatmap.max_combo()
         self.artist             = beatmap.artist
@@ -580,8 +580,22 @@ class Beatmap():
         return 60000 / mpb
 
 if __name__ == '__main__':
-    beatmap = Beatmap(1481618)
-    if(beatmap.import_beatmap()):
-        beatmap.save_beatmap()
-    
-    print ("Done !")
+
+    settings = json.loads(open('../config.json', 'r').read())
+    connexion = sqlite3.connect(settings['database_path'])
+    cursor = connexion.cursor()
+    cursor.execute("SELECT beatmap_id FROM beatmaps")
+    result = cursor.fetchall()
+    connexion.close()
+
+    for id in result:
+        try:
+            beatmap = Beatmap(id[0])
+            if (beatmap.beatmapset_id != 0):
+                continue
+            print(id[0], end=' ')
+            if(beatmap.import_beatmap(False)):
+                beatmap.save_beatmap()
+            print ("- Done")
+        except:
+            print ("- Failed")
