@@ -22,9 +22,14 @@ class Link_User:
 
     @commands.command(name="link")
     async def _link(self, ctx, *, user=None):
-        """ Bot command """
-        if not user: await ctx.message.channel.send("Please provide your in game username.")
-        else: await ctx.message.channel.send("#TODO")
+        """ User link command, allows the user
+            to link a discord account
+            with a osu account """
+        if not user:
+            await ctx.message.channel.send("Please provide your in game username.")
+        else:
+            #Everything seems to be good, we can generate a new key
+            await ctx.message.channel.send("#TODO")
 
 def setup(bot):
     bot.add_cog(Link_User(bot))

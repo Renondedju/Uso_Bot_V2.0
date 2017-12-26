@@ -27,7 +27,7 @@ class Map:
             mapid = input.replace('https://osu.ppy.sh/b/', '').split('?')[0]
             bmdb = Beatmap(mapid)
             bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
-            await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_bit(mods.lower()))
+            await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_from_str(mods.lower()))
 
     async def map_embed(self, ctx, bmdb, bmap, mods):
         # Gets the stars and pp values for the map with the given mods
