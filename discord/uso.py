@@ -126,6 +126,7 @@ async def on_guild_remove(guild):
     logs.send_logs()
     await dblpost()
 
+#Discord bot list api update
 async def dblpost():
    headers = {'Authorization': bot.settings['dbltoken']}
    data = {'server_count': len(bot.guilds)}
@@ -142,8 +143,15 @@ async def on_ready():
 
     bot.uptime = datetime.now()
     for cog in bot.settings['cogs']:
-        try: bot.load_extension(cog)
-        except: bot.logger.exception(sys.exc_info())
+        try:
+            bot.load_extension(cog)
+            print ("Loaded : ", end='')
+            print (cog)
+        except:
+            bot.logger.exception(sys.exc_info())
+            print ("Failed to load : ", end='')
+            print (cog)
+    print ("Ready !")
 
 # Running the bot
 logs_thread = Thread(target=send_logs)
