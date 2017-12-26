@@ -20,11 +20,14 @@ class Map:
         self.bot = bot
 
     @commands.command(pass_context=True)
-    async def map(self, ctx, input, mods='nomod'):
-        mapid = input.replace('https://osu.ppy.sh/b/', '').split('?')[0]
-        bmdb = Beatmap(mapid)
-        bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
-        await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_bit(mods.lower()))
+    async def map(self, ctx, input=None, mods='nomod'):
+        if not input:
+            await ctx.send("Please provide a map (link)")
+        else:
+            mapid = input.replace('https://osu.ppy.sh/b/', '').split('?')[0]
+            bmdb = Beatmap(mapid)
+            bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
+            await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_bit(mods.lower()))
 
     async def map_embed(self, ctx, bmdb, bmap, mods):
         # Gets the stars and pp values for the map with the given mods
