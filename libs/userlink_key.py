@@ -26,7 +26,7 @@ class key(object):
 
 class userlink:
 
-	def __init__(self, database_connexion):
+	def __init__(self):
 		self.shared = memcache.Client(['127.0.0.1:11211'], debug=0)
 		self.keys = {} # Osu id : [Key, Discord Id]
 		self.shared.set('keys', self.keys)
