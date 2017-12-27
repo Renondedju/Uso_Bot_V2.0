@@ -16,7 +16,7 @@
 
 > Main uso libraries
 
-- [ ] Link user
+- [x] Link user
 - [ ] Logs files
 - [ ] User auto update
 - [ ] Write the doc (lol)
@@ -25,7 +25,7 @@
 
 > Discord bot
 
-- [x] todo
+- [ ] Manage the 'Missing permissions' error while sendng messages
 
 ## IRC ##
 
