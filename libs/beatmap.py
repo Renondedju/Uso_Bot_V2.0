@@ -25,7 +25,7 @@ class Beatmap():
         #path for later
         self.settings       = json.loads(open('../config.json', 'r').read())
         self.database_path  = self.settings['database_path']
-        self.beatmaps_path  = self.settings['beatmap_path']
+        self.beatmaps_path  = self.settings['beatmap_cache']
 
         self.beatmap_id     = beatmap_id
         self.uso_id         = 0
@@ -93,6 +93,12 @@ class Beatmap():
         self.PP_97_DTHRHD   = 0
 
         self.load_beatmap()
+
+    def __del__(self):
+        """ On beatmap deletion """
+        
+        if self.beatmap_exists():
+            os.system('rm {}/{}.osu'.format(self.beatmaps_path, self.beatmap_id))
 
     def load_beatmap(self):
         """ Loading a beatmap from the database """

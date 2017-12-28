@@ -1,19 +1,18 @@
 {
     "logs_file": "/root/UsoBot/logs.txt", 
-    "main_server_id": "", 
     "working_directory": "/root/UsoBot/", 
-    "logs_channel_id": "", 
-    "oppai_cache": "/root/UsoBot/beatmaps/oppai_cache/", 
-    "main_channel_id": "",  
     "prefix": "o!", 
     "database_path": "/root/UsoBot/UsoDatabase.db", 
     "osu_api_key": "", 
     "irc_username": "",
     "irc_token": "",
-    "beatmap_path": "/root/UsoBot/beatmaps/beatmaps/", 
-    "owner_discord_id": "", 
+    "beatmap_cache": "/root/UsoBot/cache/", 
+    "owner_discord_id": "213262036069515264", 
     "discord_token": "", 
-    "invite_link": "",
-    "webhook_url": "https://discordapp.com/api/webhooks/353954085223006208/qS0aEXMC-4j_P02Fojqa9ogsGr4JEHWLDbRq4CnANtywx9gBJ9paeCRPmKkplGM_6ro3",
-    "cogs": ["commands.uptime"]
+    "invite_link": "https://discordapp.com/api/oauth2/authorize?client_id=383993626100891648&permissions=379969&scope=bot",
+    "webhook_url": "",
+    "cogs": ["commands.uptime",
+        "commands.link_user",
+        "commands.map",
+        "commands.user"]
 }

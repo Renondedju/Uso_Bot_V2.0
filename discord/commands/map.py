@@ -26,6 +26,7 @@ class Map:
         else:
             mapid = input.replace('https://osu.ppy.sh/b/', '').split('?')[0]
             bmdb = Beatmap(mapid)
+            bmdb.import_beatmap()
             bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
             await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_from_str(mods.lower()))
 
