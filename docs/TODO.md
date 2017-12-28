@@ -21,6 +21,7 @@
 - [ ] Logs files
 - [ ] User auto update
 - [ ] Write the doc (lol)
+- [ ] Remove the beatmaps files from the git history
 
 ## Discord ##
 
