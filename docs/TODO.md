@@ -29,6 +29,7 @@
 
 - [ ] Manage the 'Missing permissions' error while sendng messages
 - [ ] Finish the link_user doc
+- [ ] make the o!map command work with the new links
 
 ## IRC ##
 
