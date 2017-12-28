@@ -33,6 +33,7 @@ class Link_User:
             #Everything seems to be good, we can generate a new key
 
             api_user = get_user(self.settings['osu_api_key'], user, 0)
+
             if not api_user:
                 embed = discord.Embed(title = "Link account", colour = 0xf44242)
                 embed.description = "Mhhh, i can't find this user" 
@@ -52,7 +53,12 @@ class Link_User:
             key = link.generate_new_key(api_user[0]['user_id'], ctx.message.author.id)
 
             #Sending the key to the user
-            await ctx.message.author.send("Here is your key : {}".format(key))
+            embed = discord.Embed(title = "Link account", colour = 0x3498db)
+            embed.description= ("Please open <:osu:310362018773204992> and"
+                                " send me __**``pass {}``**__\nMy ingame name"
+                                " is __UsoBot__ -> [profile](https://osu.ppy.sh/u/10406668)"
+                                "\nBe careful, this key will __expire in 10 min__".format(key))
+            await ctx.message.author.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Link_User(bot))

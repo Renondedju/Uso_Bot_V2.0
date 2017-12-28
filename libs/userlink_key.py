@@ -31,13 +31,16 @@ class userlink:
 		self.keys = {} # Osu id : [Key, Discord Id]
 		self.shared.set('keys', self.keys)
 
-	def generate_new_key(self, osu_id, discord_id):
+	def generate_new_key(self, osu_id: int, discord_id: int):
 		""" Generating a new key """
 		discord_id = int(discord_id)
 
 		self.keys = self.shared.get('keys')
 		self.keys[osu_id] = [key(), discord_id]
 		self.shared.set('keys', self.keys)
+
+		#Creating the user
+		user = User(osu_id)
 
 		return self.keys[osu_id][0].get()
 

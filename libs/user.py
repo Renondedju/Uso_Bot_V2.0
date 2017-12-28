@@ -109,7 +109,7 @@ class User():
         #Making a cool looking dictionary
         colname = [ d[0] for d in query.description ]
         result_list = [ dict(zip(colname, r)) for r in query]
-        
+
         if len(result_list) == 0:
             connexion.close()
 
@@ -222,6 +222,7 @@ class User():
             self.last_time_played,
             self.osu_id,]
 
+        #TODO mhhh, this does not works :/ SQLite master i summon you !
         try:
             cursor.execute(""" INSERT OR REPLACE INTO users
             (discord_id,
