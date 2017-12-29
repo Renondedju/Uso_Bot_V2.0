@@ -181,9 +181,6 @@ class User():
         if not self.osu_id or not self.database_path:
             return
 
-        connexion = sqlite3.connect(self.database_path)
-        cursor = connexion.cursor()
-
         data = [self.discord_id,
             self.osu_name,
             self.rank,
@@ -222,9 +219,15 @@ class User():
             self.last_time_played,
             self.osu_id,]
 
-        #TODO mhhh, this does not works :/ SQLite master i summon you !
-        try:
-            cursor.execute(""" INSERT OR REPLACE INTO users
+        connexion = sqlite3.connect(self.database_path)
+        cursor = connexion.cursor()
+
+        cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
+
+        #Checking if the user already exists in the database
+        if not cursor.fetchall():
+            #if not, creating a new row
+            cursor.execute("""INSERT INTO users 
             (discord_id,
             osu_name,
             rank,
@@ -262,12 +265,53 @@ class User():
             last_irc_patch_used,
             last_time_played,
             osu_id)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, data)
-        except Exception as e:
-            print('\033[91mFailed to save user (id = {}, name = {})\n{}: {}\033[0m'.format(self.osu_id, self.osu_name, type(e).__name__, e))
-            connexion.close()
-            return
+        else:
+            #otherwise updating it
+            cursor.execute("""UPDATE users SET
+                discord_id              = ?,
+                osu_name                = ?,
+                rank                    = ?,
+                accuracy_average        = ?,
+                pp_average              = ?,
+                bpm_low                 = ?,
+                bpm_average             = ?,
+                bpm_high                = ?,
+                od_average              = ?,
+                ar_average              = ?,
+                cs_average              = ?,
+                len_average             = ?,
+                Nomod_playrate          = ?,
+                HR_playrate             = ?,
+                HD_playrate             = ?,
+                DT_playrate             = ?,
+                DTHD_playrate           = ?,
+                DTHR_playrate           = ?,
+                HRHD_playrate           = ?,
+                DTHRHD_playrate         = ?,
+                Nomod_recommended       = ?,
+                HR_recommended          = ?,
+                HD_recommended          = ?,
+                DT_recommended          = ?,
+                DTHD_recommended        = ?,
+                DTHR_recommended        = ?,
+                HRHD_recommended        = ?,
+                DTHRHD_recommended      = ?,
+                playstyle               = ?,
+                api_key                 = ?,
+                request_rate            = ?,
+                requests_max            = ?,
+                donations               = ?,
+                last_discord_patch_used = ?,
+                last_irc_patch_used     = ?,
+                last_time_played        = ?,
+                osu_id                  = ?
+                WHERE osu_id = {}
+            """.format(self.osu_id), data)
 
         connexion.commit()
         connexion.close()
