@@ -44,8 +44,8 @@ class Link_User:
             if not isinstance(ctx.message.channel, discord.abc.PrivateChannel):
                 embed = discord.Embed(title = "Link account", colour = 0x3498db)
                 embed.description = ("Please check your private messages"
-                                     "to get your key and the instructions"
-                                     "to link your account to uso !")
+                                     " to get your key and the instructions"
+                                     " to link your account to uso !")
                 await ctx.send(embed = embed)
 
             #Creating the key
