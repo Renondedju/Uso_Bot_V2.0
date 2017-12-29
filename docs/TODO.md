@@ -18,7 +18,7 @@
 
 - [x] Link user
 - [x] Fix user.py save_user_profile() (not inserting if needed, only replacing)
-- [ ] Logs files
+- [x] Logs files
 - [ ] Finish the r algo
 - [ ] User auto update
 - [ ] Write the doc (lol)
