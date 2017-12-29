@@ -105,3 +105,4 @@ ENV/
 
 # Uso specific
 config.json
+logs.txt

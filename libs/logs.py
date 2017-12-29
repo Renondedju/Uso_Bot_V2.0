@@ -143,10 +143,21 @@ class Log():
     def send_logs(self):
         """ Sending logs """
 
+        #Sending logs
         response = requests.post(
             self.settings['webhook_url'], data=json.dumps(self.payload),
             headers={'Content-Type': 'application/json'}
         )
+
+        #Writing logs into the logs file
+        logs_file = open(self.settings['logs_file'], 'a+')
+
+        for embed in self.payload['embeds']:
+            line =  '\n' + embed['footer']['text'] + '\n' #Date
+            line += " - " + embed['description']          #Log description
+            logs_file.write(line + '\n')
+        
+        logs_file.close()
 
         # Every log has been send so reseting the payload
         self.payload = {'embeds': []}
