@@ -5,7 +5,7 @@ from threading   import Thread
 import sys
 import json
 import time
-import uvloop
+#import uvloop
 import discord
 import asyncio
 import logging
@@ -18,7 +18,7 @@ sys.path.append(os.path.realpath('../'))
 from libs.logs import Log
 from libs.user import User
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+#asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 settings     = json.loads(open('../config.json', 'r').read())
 bot          = commands.Bot(command_prefix=commands.when_mentioned_or(settings['prefix']))

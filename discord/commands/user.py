@@ -2,9 +2,9 @@ from discord.ext import commands
 
 import discord
 import asyncio
-import uvloop
+#import uvloop
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+#asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 import os, sys
 
