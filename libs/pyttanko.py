@@ -33,7 +33,7 @@ domain. check the attached UNLICENSE or http://unlicense.org/
 '''
 
 __author__ = "Franc[e]sco <lolisamurai@tfwno.gf>"
-__version__ = "1.0.14"
+__version__ = "1.0.18"
 
 import sys
 import math
@@ -473,7 +473,7 @@ class parser:
         # TODO: other modes
 
         else:
-            raise NotImplemented
+            raise NotImplementedError
 
 
     def map(self, osu_file, bmap = None):
@@ -492,15 +492,6 @@ class parser:
             b = beatmap()
         else:
             b.reset()
-
-        line = osu_file.readline()
-
-        OSU_MAGIC = "osu file format v"
-        # some .osu files might include a utf-8 BOM if curl'd
-        findres = line.strip().find(OSU_MAGIC)
-        if findres < 0 or findres >= 4:
-            raise ValueError("not a valid beatmap file")
-        b.format_version = int(line[findres+len(OSU_MAGIC):])
 
         for line in osu_file:
             self.nline += 1
@@ -533,6 +524,14 @@ class parser:
                 self.timing(b, line)
             elif section == "HitObjects":
                 self.objects(b, line)
+            else:
+                OSU_MAGIC = "file format v"
+                findres = line.strip().find(OSU_MAGIC)
+                if findres > 0:
+                    b.format_version = int(
+                        line[findres+len(OSU_MAGIC):]
+                    )
+
 
 
         self.done = True
@@ -569,7 +568,7 @@ def mods_str(mods):
     if mods & MODS_EZ != 0: res += "EZ"
     if mods & MODS_TOUCH_DEVICE != 0: res += "TD"
     if mods & MODS_NC != 0: res += "NC"
-    if mods & MODS_DT != 0: res += "DT"
+    elif mods & MODS_DT != 0: res += "DT"
     if mods & MODS_FL != 0: res += "FL"
     if mods & MODS_SO != 0: res += "SO"
     if mods & MODS_NF != 0: res += "NF"
@@ -577,22 +576,29 @@ def mods_str(mods):
     return res
 
 
-def mods_from_str(mods_str):
+def mods_from_str(string):
     '''get mods bitmask from their string representation
     (touch device is TD)'''
 
     res = 0
 
-    if "HD" in mods_str: res |= MODS_HD
-    if "HT" in mods_str: res |= MODS_HT
-    if "HR" in mods_str: res |= MODS_HR
-    if "EZ" in mods_str: res |= MODS_EZ
-    if "TD" in mods_str: res |= MODS_TOUCH_DEVICE
-    if "NC" in mods_str: res |= MODS_NC
-    if "DT" in mods_str: res |= MODS_DT
-    if "FL" in mods_str: res |= MODS_FL
-    if "SO" in mods_str: res |= MODS_SO
-    if "NF" in mods_str: res |= MODS_NF
+    while string != "":
+        if string.startswith("HD"): res |= MODS_HD
+        elif string.startswith("HT"): res |= MODS_HT
+        elif string.startswith("HR"): res |= MODS_HR
+        elif string.startswith("EZ"): res |= MODS_EZ
+        elif string.startswith("TD"): res |= MODS_TOUCH_DEVICE
+        elif string.startswith("NC"): res |= MODS_NC
+        elif string.startswith("DT"): res |= MODS_DT
+        elif string.startswith("FL"): res |= MODS_FL
+        elif string.startswith("SO"): res |= MODS_SO
+        elif string.startswith("NF"): res |= MODS_NF
+        else:
+            string = string[1:]
+            continue
+
+        string = string[2:]
+
 
     return res
 
@@ -729,7 +735,7 @@ def d_spacing_weight(difftype, distance):
         return (0.95, False)
 
 
-    raise NotImplemented
+    raise NotImplementedError
 
 
 DECAY_BASE = [ 0.3, 0.15 ] # strain decay per interval
@@ -879,7 +885,7 @@ class diff_calc:
         )
 
         if bmap.mode != MODE_STD:
-            raise NotImplemented
+            raise NotImplementedError
 
         self.reset()
 
@@ -1035,7 +1041,7 @@ def ppv2(
         info(
             "ppv2 is only implemented for osu!std at the moment\n"
         )
-        raise NotImplemented
+        raise NotImplementedError
 
 
     if bmap != None:
@@ -1097,7 +1103,7 @@ def ppv2(
 
     else:
         info("unsupported scorev%d\n" % (score_version))
-        raise NotImplemented
+        raise NotImplementedError
 
     # global values -----------------------------------------------
     nobjects_over_2k = nobjects / 2000.0
@@ -1196,7 +1202,7 @@ if __name__ == "__main__":
 
     mods = 0
     acc_percent = 100.0
-    combo = 300
+    combo = -1
     nmiss = 0
 
     # get mods, acc, combo, misses from command line arguments
@@ -1215,9 +1221,13 @@ if __name__ == "__main__":
     try:
         p = parser()
         bmap = p.map(sys.stdin)
+        if combo < 0:
+            combo = bmap.max_combo()
 
-        print("%s - %s [%s]" % (bmap.artist, bmap.title,
-            bmap.version))
+        print("%s - %s [%s] +%s" % (bmap.artist, bmap.title,
+            bmap.version, mods_str(mods)))
+        print("OD%g AR%g CS%g HP%g" % (bmap.od, bmap.ar, bmap.cs,
+            bmap.hp))
         stars = diff_calc().calc(bmap, mods)
         print("max combo: %d\n" % (bmap.max_combo()))
         print(stars)
@@ -1245,4 +1255,3 @@ if __name__ == "__main__":
             raise
         else: # beatmap parsing error, print parser state
             info("%s\n%s\n" % (traceback.format_exc(), str(p)))
-
