@@ -2,11 +2,11 @@ from discord.ext import commands
 
 import discord
 import asyncio
-import uvloop
+#import uvloop
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+#asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-import os, sys
+import os, sys, re
 
 sys.path.append(os.path.realpath('../'))
 
@@ -24,7 +24,11 @@ class Map:
         if not input:
             await ctx.send("Please provide a map (link)")
         else:
-            mapid = input.replace('https://osu.ppy.sh/b/', '').split('?')[0]
+            oldlink = re.findall('https?://osu.ppy.sh/b/([0-9]*)', input)
+            newlink = re.findall('https?://osu.ppy.sh/beatmapsets/[0-9]*\/?\#[a-z]*\/([0-9]*)', input)
+            if len(oldlink) > 0: mapid = int(oldlink[0])
+            elif len(newlink) > 0: mapid = int(newlink[0])
+            else: ctx.send('No proper map link found'); return
             bmdb = Beatmap(mapid)
             bmdb.import_beatmap()
             bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
