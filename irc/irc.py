@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import re, os, sys
-import socket
+import socket, time
 
 class IRCbot:
     def __init__(self, server, nick):
@@ -19,7 +18,6 @@ class IRCbot:
         self.irc.send(f'USER {self.nick} {self.nick} {self.nick} :Test python irc bot script\n'.encode())
         self.irc.send(f'PASS {password}\n'.encode())
         self.irc.send(f'NICK {self.nick}\n'.encode())
-        self.irc.send('WHOIS tillerino\n'.encode())
 
     def get_text(self):
         text = self.irc.recv(2048).decode('utf-8')
@@ -31,8 +29,8 @@ class IRCbot:
 if __name__ == '__main__':
     irc = IRCbot('irc.ppy.sh', 'username')
     irc.connect('password')
-    online = True
-    while online == True:
+    while True:
         text = irc.get_text()
-        if text.strip() != '':
-            print(text)
+        for line in text.split('\n'):
+            if line.strip() != '':
+                print(line)
