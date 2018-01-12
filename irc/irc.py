@@ -63,7 +63,7 @@ class IRCbot:
 
 if __name__ == '__main__':
     '''Example of how the bot class should be used'''
-    irc = IRCbot('irc.ppy.sh', 'jamu', 'fd061008')
+    irc = IRCbot('irc.ppy.sh', 'username', 'password')
     irc.connect()
     stayonline = True
     try: # Most of this is to test shutting the bot down
