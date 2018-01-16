@@ -33,7 +33,7 @@ domain. check the attached UNLICENSE or http://unlicense.org/
 '''
 
 __author__ = "Franc[e]sco <lolisamurai@tfwno.gf>"
-__version__ = "1.0.18"
+__version__ = "1.0.20"
 
 import sys
 import math
@@ -213,7 +213,8 @@ class beatmap:
         self.version = ""
 
         self.ncircles = self.nsliders = self.nspinners = 0
-        self.hp = self.cs = self.od = self.ar = 5
+        self.hp = self.cs = self.od = 5
+        self.ar = None
         self.sv = self.tick_rate = 1.0
 
         self.hitobjects[:] = []
@@ -514,25 +515,32 @@ class parser:
                 section = line[1:-1]
                 continue
 
-            if section == "Metadata":
-                self.metadata(b, line)
-            elif section == "General":
-                self.general(b, line)
-            elif section == "Difficulty":
-                self.difficulty(b, line)
-            elif section == "TimingPoints":
-                self.timing(b, line)
-            elif section == "HitObjects":
-                self.objects(b, line)
-            else:
-                OSU_MAGIC = "file format v"
-                findres = line.strip().find(OSU_MAGIC)
-                if findres > 0:
-                    b.format_version = int(
-                        line[findres+len(OSU_MAGIC):]
-                    )
+            try:
+                if section == "Metadata":
+                    self.metadata(b, line)
+                elif section == "General":
+                    self.general(b, line)
+                elif section == "Difficulty":
+                    self.difficulty(b, line)
+                elif section == "TimingPoints":
+                    self.timing(b, line)
+                elif section == "HitObjects":
+                    self.objects(b, line)
+                else:
+                    OSU_MAGIC = "file format v"
+                    findres = line.strip().find(OSU_MAGIC)
+                    if findres > 0:
+                        b.format_version = int(
+                            line[findres+len(OSU_MAGIC):]
+                        )
+
+            except (ValueError, SyntaxError) as e:
+                info("W: %s\n%s\n" % (e, self))
 
 
+
+        if b.ar is None:
+            b.ar = b.od
 
         self.done = True
         return b
