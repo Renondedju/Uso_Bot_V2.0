@@ -21,7 +21,7 @@ from libs         import pyttanko
 class User():
     """ User informations """
 
-    def __init__(self, osu_id:int):
+    def __init__(self, osu_id:int = 0, osu_name:str = ""):
         """ Init """
 
         self.settings      = json.loads(open('../config.json', 'r').read())
@@ -35,7 +35,7 @@ class User():
         self.osu_id     = osu_id
         self.uso_id     = 0
         self.discord_id = 0
-        self.osu_name   = 0
+        self.osu_name   = osu_name
         self.rank       = 0
 
         #User performances
@@ -96,7 +96,7 @@ class User():
 
     def load_user_profile(self):
         """ Loading a user profile from the database """
-        if not self.osu_id or not self.database_path:
+        if not self.osu_id and not self.database_path:
             return
 
         #Connecting to database
@@ -104,8 +104,11 @@ class User():
         cursor = connexion.cursor()
         
         #Fetching datas from database
-        query = cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
-        
+        if self.osu_id != 0:
+            query = cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
+        elif self.osu_name != "":
+            query = cursor.execute("SELECT * FROM users WHERE osu_name = ?", [self.osu_name,])
+
         #Making a cool looking dictionary
         colname = [ d[0] for d in query.description ]
         result_list = [ dict(zip(colname, r)) for r in query]
@@ -390,14 +393,18 @@ class User():
     def update_user_stats(self):
         """ Updating user stats """
 
-        if not self.osu_id:
+        if not self.osu_id and not self.osu_name:
             return
 
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
 
         #Fetching datas from bancho api
-        userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)
-        userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
+        if self.osu_id != 0:
+            userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
+        elif self.osu_name != "":
+            userinfo = get_user(self.settings['osu_api_key'], self.osu_name, Mode.Osu)
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
 
         if (len(userinfo) == 0):
             print('User id {} does not exists !'.format(self.osu_id))
@@ -560,8 +567,7 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(25444588487)
+    user = User(osu_name = "Renondedju")
     user.update_user_stats()
-    user.reset_recommendations()
     user.save_user_profile()
     user.print_user_profile()
