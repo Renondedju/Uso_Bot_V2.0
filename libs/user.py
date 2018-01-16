@@ -8,6 +8,7 @@
 import os
 import sys
 import json
+import time
 import sqlite3
 import asyncio
 
@@ -84,7 +85,7 @@ class User():
         #Patch
         self.last_discord_patch_used = "0.0.0"
         self.last_irc_patch_used     = "0.0.0"
-        self.last_time_played        = 0 #timestamp
+        self.last_update             = 0 #timestamp
 
         self.load_user_profile()
 
@@ -173,9 +174,13 @@ class User():
         #Patch
         self.last_discord_patch_used    = result_list[0]['last_discord_patch_used']
         self.last_irc_patch_used        = result_list[0]['last_irc_patch_used']
-        self.last_time_played           = result_list[0]['last_time_played'] #timestamp
+        self.last_update                = result_list[0]['last_update'] #timestamp
         
         connexion.close()
+
+        #Time to update :D
+        if self.last_update <= time.time() - 86400: #86400 is the number of secs in one day
+            self.update_user_stats()
 
         return
 
@@ -219,7 +224,7 @@ class User():
             self.donations,
             self.last_discord_patch_used,
             self.last_irc_patch_used,
-            self.last_time_played,
+            self.last_update,
             self.osu_id,]
 
         connexion = sqlite3.connect(self.database_path)
@@ -266,7 +271,7 @@ class User():
             donations,
             last_discord_patch_used,
             last_irc_patch_used,
-            last_time_played,
+            last_update,
             osu_id)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, 
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
@@ -311,7 +316,7 @@ class User():
                 donations               = ?,
                 last_discord_patch_used = ?,
                 last_irc_patch_used     = ?,
-                last_time_played        = ?,
+                last_update             = ?,
                 osu_id                  = ?
                 WHERE osu_id = {}
             """.format(self.osu_id), data)
@@ -334,6 +339,10 @@ class User():
         self.DTHRHD_recommended = ""
 
         print ('Recommendations for {} reseted !'.format(self.osu_name))
+
+        self.save_user_profile()
+
+        return
 
     def get_recommended(self, mods:str, recommended:str = ''):
         """ Gives the recommended maps for a specific mod """
@@ -492,6 +501,10 @@ class User():
         self.bpm_high           = round(max(self.bpm_average))
         self.bpm_low            = round(min(self.bpm_average))
         self.bpm_average        = round(sum(self.bpm_average) / len(self.bpm_average))
+
+        self.last_update = time.time()
+
+        self.save_user_profile()
     
         return
 
@@ -559,7 +572,7 @@ class User():
         print("|")
         print("|-last_discord_patch_used    = {}".format(self.last_discord_patch_used))
         print("|-last_irc_patch_used        = {}".format(self.last_irc_patch_used))
-        print("|-last_time_played           = {}".format(self.last_time_played))
+        print("|-last_update                = {}".format(self.last_update))
         print("|")
 
 
@@ -568,6 +581,4 @@ class User():
 if __name__ == '__main__':
     # --- Test lines !
     user = User(osu_name = "Renondedju")
-    user.update_user_stats()
-    user.save_user_profile()
     user.print_user_profile()
