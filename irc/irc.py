@@ -4,17 +4,52 @@ import socket, time
 
 class IRCbot:
     def __init__(self, server, nick, passw):
+        self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
         self.nick = nick
         self.passw = passw
-        self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.messages = []
-        self.lastmsg = time.perf_counter()
+        self.buffer = {}
+
+    def send_message(self, target, msg):
+        '''Processes messages to prevent spam'''
+        if target not in self.buffer:
+            # I guess since this is the first message to this user we can
+            # Just send it immediately after adding them to the buffer
+            self.buffer[target] = {
+                'messages': [], 'timer': time.time(),
+                'last_msg': time.time(), 'nb_msg': 1}
+            self.send(target, msg)
+        else:
+            now = time.time()
+            if now - self.buffer[target]['last_msg'] >= 8:
+                self.buffer[target]['timer'] = now
+                self.buffer[target]['nb_msg'] = 0
+            if now - self.buffer[target]['last_msg'] >= 1 and self.buffer[target]['nb_msg'] <= 5:
+                self.send(target, msg)
+                self.buffer[target]['nb_msg'] += 1
+                self.buffer[target]['last_msg'] = time.time()
+            else: self.buffer[target]['messages'].append(msg)
+
+    def check_buffer(self): # Is there a way to compress these two into one function, since they're mostly the same?
+        '''Processes buffer and sends any messages that are able to be sent now'''
+        for target in self.buffer.copy():
+            if len(self.buffer[target]['messages']) == 0:
+                self.buffer.pop(target)
+                continue
+            now = time.time() # I'd put this outside the loop, but what if there's a lot of messages :^)
+            if now - self.buffer[target]['last_msg'] >= 8:
+                self.buffer[target]['timer'] = now
+                self.buffer[target]['nb_msg'] = 0
+            if now - self.buffer[target]['last_msg'] >= 1 and self.buffer[target]['nb_msg'] <= 5:
+                msg = self.buffer[target]['messages'].pop(0)
+                self.send(target, msg)
+                self.buffer[target]['nb_msg'] += 1
+                self.buffer[target]['last_msg'] = now
 
     def send(self, target, msg):
         '''Sends a private message to the target'''
         self.irc.send(f'PRIVMSG {target} {msg}\n'.encode())
-        print(f'To {target}: {msg}')
+        print(f'To {target}: {msg}') # So we can see the messages sent
 
     def pong(self, msg):
         '''Responds to pings sent by the IRC server'''
@@ -26,7 +61,7 @@ class IRCbot:
         '''Connects and logs into the IRC server'''
         self.irc.connect((self.server, 6667))
         print(f'Connected to: {self.server}')
-        self.irc.send(f'USER {self.nick} {self.nick} {self.nick} :Test python irc bot script\n'.encode())
+        self.irc.send(f'USER {self.nick} {self.nick} {self.nick} :Test bot\n'.encode())
         self.irc.send(f'PASS {self.passw}\n'.encode())
         self.irc.send(f'NICK {self.nick}\n'.encode())
 
@@ -49,7 +84,8 @@ class IRCbot:
     def parse_line(self, line):
         '''Parse lines of data with regex'''
         parsed = re.findall('^(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$', line)
-        return parsed[0]
+        try: return parsed[0] # Don't judge this, I just want to see why it randomly crashes sometimes xd
+        except: print(line); return ('', '', '', '')
 
     def close(self):
         '''I guess this is to properly handle closing the connection?'''
@@ -67,14 +103,18 @@ if __name__ == '__main__':
     irc = IRCbot('irc.ppy.sh', 'username', 'password')
     irc.connect()
     stayonline = True
-    try:
+    try: # Might add certain handlers for these in the future
         while stayonline == True:
             for msg in irc.get_text():
                 if msg[1] == 'PRIVMSG':
                     sender = msg[0].split('!')[0]
                     print(f'From {sender}: {msg[3]}')
-                    if msg[3] == 'test ping':
-                        irc.send(sender, 'pong my dude')
+                    if msg[3] == 'test':
+                        irc.send_message(sender, 'you failed')
+                    elif msg[3] == 'test me':
+                        irc.send_message(sender, '\x01ACTION is a cool bot\x01')
+                    elif msg[3] == 'test link':
+                        irc.send_message(sender, '[https://osu.ppy.sh/home Here]\'s a good time')
                 elif msg[1] in ['001', '372', '375', '376']:
                     print(msg[3].strip())
                 elif msg[1] in ['311', '319', '312', '318', '401']:
@@ -84,56 +124,7 @@ if __name__ == '__main__':
                     stayonline = False
                     break
                 else: print(msg)
+            irc.check_buffer()
         else: irc.close()
     except KeyboardInterrupt:
         irc.close()
-
-# Here's what we recieve after being parsed by the regex:
-# Seems 001 is welcome, 375 stars MOTD, 372 is MOTD, and 376 ends MOTD
-#     ('cho.ppy.sh', '001', 'Jamu', 'Welcome to the osu!Bancho.\r')
-#     ('cho.ppy.sh', '375', 'Jamu', '-\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                     ______                   __\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-   ____  _______  __/ / __ )____ _____  _____/ /_  ____\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-  / __ \\/ ___/ / / / / __  / __ `/ __ \\/ ___/ __ \\/ __ \\\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- / /_/ (__  ) /_/ /_/ /_/ / /_/ / / / / /__/ / / / /_/ /\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- \\____/____/\\__,_(_)_____/\\__,_/_/ /_/\\___/_/ /_/\\____/\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- osu!bancho (c) ppy Pty Ltd\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                  .  o ..                  \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                  o . o o.o                \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                       ...oo               \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                         __[]__            \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                      __|_o_o_o\\__         \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                      \\'''"/         \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                       \\. ..  . /          \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '-                  ^^^^^^^^^^^^^^^^^^^^\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- \r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- web:    https://osu.ppy.sh\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- status: https://twitter.com/osustatus\r')
-#     ('cho.ppy.sh', '372', 'Jamu', '- boat:   https://twitter.com/banchoboat\r')
-#     ('cho.ppy.sh', '376', 'Jamu', '-\r')
-# This is what you get when you give a bad pass
-# MOTD seems to switch to telling you it's a bad password
-# Safe to assume if we see 464, we need to stop trying to reconnect.
-#     ('cho.ppy.sh', '372', 'jamu', 'Welcome to osu!bancho.\r')
-#     ('cho.ppy.sh', '372', 'jamu', '-\r')
-#     ('cho.ppy.sh', '372', 'jamu', '- You are required to authenticate before accessing this service.\r')
-#     ('cho.ppy.sh', '372', 'jamu', '- Please click the following link to receive your password:\r')
-#     ('cho.ppy.sh', '372', 'jamu', '- https://osu.ppy.sh/p/irc\r')
-#     ('cho.ppy.sh', '372', 'jamu', '-\r')
-#     ('cho.ppy.sh', '464', 'jamu', 'Bad authentication token.\r')
-# After repetetive tests 311 seems to be user definitions? 319 seems to be channels the user is in
-# 312 seems to be hostnames or something, possibly used to indicate if online in game?
-# 318 ends WHOS, obviously, 401 seems to be that the user isn't online, possible need to strip?
-#     ('cho.ppy.sh', '311', 'Jamu Tillerino https://osu.ppy.sh/u/2070907 *', 'https://osu.ppy.sh/u/2070907\r')
-#     ('cho.ppy.sh', '319', 'Jamu Tillerino', '#osu \r')
-#     ('cho.ppy.sh', '312', 'Jamu Tillerino cho.ppy.sh', 'osu!Bancho\r')
-#     ('cho.ppy.sh', '318', 'Jamu Tillerino', 'End of /WHOIS list.\r')
-#     ('cho.ppy.sh', '401', 'Jamu lksjdfklj', 'No such nick/channel\r')
-# I don't think these are much different, but I should look into it
-#     ('Jaw--!cho@ppy.sh', 'QUIT', '', 'ping timeout 80s')
-#     ('wastingtape!cho@ppy.sh', 'QUIT', '', 'quit')
-#     ('ArkaneFenix!cho@ppy.sh', 'QUIT', '', 'replaced (None 5e64f8d1-afee-4bee-afd2-eabdc9fa554e)')
-# These are self explanatory, but here for reference of formatting
-#     ('Yuuki-chan!cho@ppy.sh', 'PRIVMSG', 'Jamu', 'random')
-#     ('Yuuki-chan!cho@ppy.sh', 'PRIVMSG', 'Jamu', '\x01ACTION is listening to [https://osu.ppy.sh/b/1329273 KAMELOT - Liar Liar (Wasteland Monarchy)]\x01')
