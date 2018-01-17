@@ -6,7 +6,7 @@
     "osu_api_key"      : "", 
     "irc_username"     : "",
     "irc_token"        : "",
-    "beatmap_cache"    : "/root/UsoBot/cache/", 
+    "beatmap_cache"    : "/root/UsoBot/cache", 
     "owner_discord_id" : "213262036069515264", 
     "discord_token"    : "", 
     "invite_link"      : "https://discordapp.com/api/oauth2/authorize?client_id=383993626100891648&permissions=379969&scope=bot",

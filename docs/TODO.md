@@ -20,7 +20,7 @@
 - [x] Fix user.py save_user_profile() (not inserting if needed, only replacing)
 - [x] Logs files
 - [ ] Finish the r algo
-- [ ] User auto update
+- [x] User auto update
 - [ ] Write the doc (lol)
 - [x] Remove the beatmaps files from the git history
 

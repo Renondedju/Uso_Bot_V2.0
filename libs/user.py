@@ -38,6 +38,7 @@ class User():
         self.discord_id = 0
         self.osu_name   = osu_name
         self.rank       = 0
+        self.raw_pp     = 0
 
         #User performances
         self.accuracy_average   = 0
@@ -97,7 +98,7 @@ class User():
 
     def load_user_profile(self):
         """ Loading a user profile from the database """
-        if not self.osu_id and not self.database_path:
+        if (self.osu_id == 0 and self.osu_name == "") or not self.database_path:
             return
 
         #Connecting to database
@@ -128,6 +129,7 @@ class User():
         self.discord_id = result_list[0]['discord_id']
         self.osu_name   = result_list[0]['osu_name']
         self.rank       = result_list[0]['rank']
+        self.raw_pp     = result_list[0]['raw_pp']
         
         #User performances
         self.accuracy_average   = result_list[0]['accuracy_average']
@@ -186,12 +188,13 @@ class User():
 
     def save_user_profile(self):
         """ Saves the user profile into a given database """
-        if not self.osu_id or not self.database_path:
+        if (self.osu_id == 0 and self.osu_name == "") or not self.database_path:
             return
 
         data = [self.discord_id,
             self.osu_name,
             self.rank,
+            self.raw_pp,
             self.accuracy_average,
             self.pp_average,
             self.bpm_low,
@@ -230,7 +233,10 @@ class User():
         connexion = sqlite3.connect(self.database_path)
         cursor = connexion.cursor()
 
-        cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
+        if self.osu_id != 0:
+            cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
+        else:
+            cursor.execute("SELECT * FROM users WHERE osu_name = ?", [self.osu_name,])
 
         #Checking if the user already exists in the database
         if not cursor.fetchall():
@@ -239,6 +245,7 @@ class User():
             (discord_id,
             osu_name,
             rank,
+            raw_pp,
             accuracy_average,
             pp_average,
             bpm_low,
@@ -273,7 +280,7 @@ class User():
             last_irc_patch_used,
             last_update,
             osu_id)
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, 
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, 
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
             ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -284,6 +291,7 @@ class User():
                 discord_id              = ?,
                 osu_name                = ?,
                 rank                    = ?,
+                raw_pp                  = ?,
                 accuracy_average        = ?,
                 pp_average              = ?,
                 bpm_low                 = ?,
@@ -402,7 +410,7 @@ class User():
     def update_user_stats(self):
         """ Updating user stats """
 
-        if not self.osu_id and not self.osu_name:
+        if self.osu_id == 0 and self.osu_name == "":
             return
 
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
@@ -410,10 +418,8 @@ class User():
         #Fetching datas from bancho api
         if self.osu_id != 0:
             userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
         elif self.osu_name != "":
             userinfo = get_user(self.settings['osu_api_key'], self.osu_name, Mode.Osu)
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
 
         if (len(userinfo) == 0):
             print('User id {} does not exists !'.format(self.osu_id))
@@ -421,10 +427,20 @@ class User():
         else:
             userinfo = userinfo[0]
 
+        #Well, you might not have won enougth pp for now 
+        if (abs(self.raw_pp - float(userinfo['pp_raw']))) < 1.5:
+            return
+
+        if self.osu_id != 0:
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
+        elif self.osu_name != "":
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
+
         self.osu_id             = userinfo['user_id']
         self.osu_name           = userinfo['username']
         self.rank               = int(userinfo['pp_rank'])
         self.playstyle          = 0
+        self.raw_pp             = float(userinfo['pp_raw'])
         self.accuracy_average   = 0
         self.cs_average         = 0
         self.ar_average         = 0
@@ -519,7 +535,7 @@ class User():
     def print_user_profile(self):
         """Clean output to see this user parameters"""
 
-        if self.uso_id == None:
+        if self.osu_id == 0 and self.osu_name == "":
             print('User empty')
             return
 
@@ -530,6 +546,7 @@ class User():
         print("|-discord_id  = {}".format(self.discord_id))
         print("|-osu_name    = {}".format(self.osu_name))
         print("|-rank        = {}".format(self.rank))
+        print("|-raw_pp      = {}".format(self.raw_pp))
         print("|")
         print("---- User performances ----")
         print("|")
@@ -581,4 +598,6 @@ class User():
 if __name__ == '__main__':
     # --- Test lines !
     user = User(osu_name = "Renondedju")
+    user.update_user_stats()
+    user.save_user_profile()
     user.print_user_profile()
