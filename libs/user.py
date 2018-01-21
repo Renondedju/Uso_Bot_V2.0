@@ -127,6 +127,7 @@ class User():
         
         self.uso_id     = result_list[0]['uso_id']
         self.discord_id = result_list[0]['discord_id']
+        self.osu_id     = result_list[0]['osu_id']
         self.osu_name   = result_list[0]['osu_name']
         self.rank       = result_list[0]['rank']
         self.raw_pp     = result_list[0]['raw_pp']
@@ -324,8 +325,8 @@ class User():
                 last_irc_patch_used     = ?,
                 last_update             = ?,
                 osu_id                  = ?
-                WHERE osu_id = {}
-            """.format(self.osu_id), data)
+                WHERE uso_id = {}
+            """.format(self.uso_id), data)
 
         connexion.commit()
         connexion.close()
