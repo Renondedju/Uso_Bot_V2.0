@@ -180,9 +180,7 @@ class User():
         
         connexion.close()
 
-        #Time to update :D
-        if self.last_update <= time.time() - 86400: #86400 is the number of secs in one day
-            self.update_user_stats()
+        self.update_user_stats()
 
         return
 
@@ -353,7 +351,7 @@ class User():
         return
 
     def get_recommended(self, mods:str, recommended:str = ''):
-        """ Gives the recommended maps for a specific mod """
+        """ Gives the already recommended maps for a specific mod """
         
         mods = mods.strip('_')
 
@@ -413,6 +411,11 @@ class User():
         if self.osu_id == 0 and self.osu_name == "":
             return
 
+        #Time to update :D
+        #Updating only if one day has passed
+        if self.last_update > time.time() - 86400: #86400 is the number of secs in one day
+            return
+
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
 
         #Fetching datas from bancho api
@@ -422,7 +425,7 @@ class User():
             userinfo = get_user(self.settings['osu_api_key'], self.osu_name, Mode.Osu)
 
         if (len(userinfo) == 0):
-            print('User id {} does not exists !'.format(self.osu_id))
+            print('User id {}, {} does not exists !'.format(self.osu_id, self.osu_name))
             return
         else:
             userinfo = userinfo[0]
@@ -430,11 +433,6 @@ class User():
         #Well, you might not have won enougth pp for now 
         if (abs(self.raw_pp - float(userinfo['pp_raw']))) < 1.5:
             return
-
-        if self.osu_id != 0:
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
-        elif self.osu_name != "":
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
 
         self.osu_id             = userinfo['user_id']
         self.osu_name           = userinfo['username']
@@ -457,6 +455,11 @@ class User():
         self.DTHR_playrate   = 0.0
         self.HRHD_playrate   = 0.0
         self.DTHRHD_playrate = 0.0
+
+        if self.osu_id != 0:
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
+        elif self.osu_name != "":
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
 
         #Main loop
         for score in userbest:
@@ -597,7 +600,5 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(osu_name = "Renondedju")
-    user.update_user_stats()
-    user.save_user_profile()
+    user = User(osu_name = "ThePoon")
     user.print_user_profile()
