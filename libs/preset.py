@@ -32,7 +32,6 @@ class Preset:
             handler_kwargs = {'power': power}
             response = handler(**handler_kwargs)
             
-    
     def reset(self):
         """ Resets the preset to regular mode """
 
@@ -48,14 +47,26 @@ class Preset:
         self.cs         = self.user.cs_average
 
         self.mods       = {
-            'Nomod'   : self.user.Nomod_playrate,
-             'HR'     : self.user.HR_playrate,
-             'HD'     : self.user.HD_playrate,
-             'DT'     : self.user.DT_playrate,
-             'DTHD'   : self.user.DTHD_playrate,
-             'DTHR'   : self.user.DTHR_playrate,
-             'HRHD'   : self.user.HRHD_playrate,
-             'DTHRHD' : self.user.DTHRHD_playrate}
+            'Nomod'  : self.user.Nomod_playrate,
+            'HR'     : self.user.HR_playrate,
+            'HD'     : self.user.HD_playrate,
+            'DT'     : self.user.DT_playrate,
+            'DTHD'   : self.user.DTHD_playrate,
+            'DTHR'   : self.user.DTHR_playrate,
+            'HRHD'   : self.user.HRHD_playrate,
+            'DTHRHD' : self.user.DTHRHD_playrate}
+
+
+    #TRAINING MODES SECTION
+
+    def set_default_mode(self, power:float):
+        """ --- Set the preset to default mode
+
+            All the stats remains the same, this mode is used 
+            to set specific stats manualy
+        """
+
+        return
 
     def set_training_mode(self, power:float):
         """ --- Set the preset to gereral training mode
@@ -110,8 +121,10 @@ class Preset:
 
         self.playstyle = self.user.playstyle / power
 
+    #END TRAINING MODES SECTION
+
     def select_mods(self, mods:int):
-        """ Selects a mod for the preset """
+        """ Selects a mod for the preset from the Mods enum """
 
         selected_mods = 'Nomod'
 
@@ -142,7 +155,7 @@ if __name__ == '__main__':
     #Just some test lines 
 
     peppy = User(2)
-    preset = Preset(peppy, 'stream', 1.05)
+    preset = Preset(peppy, 'stream')
     print (preset.mode)
     print (peppy.playstyle)
     print (preset.playstyle)
