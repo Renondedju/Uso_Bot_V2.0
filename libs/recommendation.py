@@ -16,6 +16,7 @@ from libs.beatmap import Beatmap
 from libs.preset  import Preset
 
 import json
+import time
 import random
 import sqlite3
 
@@ -74,7 +75,7 @@ class REngine:
 
         return self.weighted_choice(dictionary)
 
-    def recommend(self, user:User, count:int):
+    def recommend(self, preset:Preset, count:int):
         """ R Algo """
 
         connexion = sqlite3.connect(self.database_path)
@@ -88,21 +89,24 @@ class REngine:
         #Beatmaps research loop
         while (len(self.recommendatons) < count):
 
-            mods = self.select_mod(user)
+            mods = self.select_mod(preset.user)
 
             #Main beatmap request
             cursor.execute("""SELECT beatmap_id FROM beatmaps WHERE
                  PP_{}{}    BETWEEN ? AND ? AND
                  bpm        BETWEEN ? AND ? AND
+                 playstyle  BETWEEN ? AND ? AND
                  beatmap_id NOT IN ({})
                  LIMIT 1"""
-                 .format(max(user.accuracy_average, 97), 
-                         mods, "'00000'" + user.get_recommended(mods)),
+                 .format(max(preset.acc, 97), 
+                         mods, "'00000'" + preset.user.get_recommended(mods)),
 
-                [round(user.pp_average  * self.down_precision), 
-                 round(user.pp_average  * self.up_percision),
-                 round(user.bpm_average * self.down_precision),
-                 round(user.bpm_average * self.up_percision),])
+                [round(preset.pp  * self.down_precision), 
+                 round(preset.pp  * self.up_percision),
+                 round(preset.bpm * self.down_precision),
+                 round(preset.bpm * self.up_percision),
+                 preset.playstyle * self.down_precision,
+                 preset.playstyle * self.up_percision,])
             
             beatmap_id = cursor.fetchone()
 
@@ -118,20 +122,22 @@ class REngine:
                 self.recommendatons.append(Beatmap(beatmap_id[0]))
                 self.mods.append(mods.replace('_', ''))
                 #Saving the recommendation into the user profile
-                user.get_recommended(mods, "'" + str(beatmap_id[0]) + "'")
+                preset.user.get_recommended(mods, "'" + str(beatmap_id[0]) + "'")
 
         if (len(self.recommendatons) == count):
             #Saving the users recommendations if everything is fine
-            user.save_user_profile()
+            preset.user.save_user_profile()
 
         return self.recommendatons
 
 if __name__ == '__main__':
     # --- Test lines !
 
+    now = time.time()
     engine = REngine()
-    engine.recommend(User(7418575), 10)
+    engine.recommend(Preset(User(osu_name = "ThePooN")), 10)
     print("Done, here are the results ({}), {}% of precision".format(len(engine.recommendatons), engine.precision * 100))
     for i in range(10):
         print(engine.recommendatons[i].beatmap_id, end = ' - ')
         print(engine.mods[i])
+    print ('Done in {} s'.format(time.time() - now))
