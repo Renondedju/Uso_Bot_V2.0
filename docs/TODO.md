@@ -21,7 +21,8 @@
 - [x] Logs files
 - [ ] Finish the r algo
 - [x] User auto update
-- [ ] Write the doc (lol)
+- [ ] Write the doc
+- [ ] Investigate on a bug on beatmap import (cache seems to be dowloading wierd beatmaps ...)
 - [x] Remove the beatmaps files from the git history
 
 ## Discord ##
