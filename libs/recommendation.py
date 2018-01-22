@@ -93,9 +93,13 @@ class REngine:
 
             #Main beatmap request
             cursor.execute("""SELECT beatmap_id FROM beatmaps WHERE
-                 PP_{}{}    BETWEEN ? AND ? AND
-                 bpm        BETWEEN ? AND ? AND
-                 playstyle  BETWEEN ? AND ? AND
+                 PP_{}{}       BETWEEN ? AND ? AND
+                 bpm           BETWEEN ? AND ? AND
+                 playstyle     BETWEEN ? AND ? AND
+                 hit_length    BETWEEN ? AND ? AND
+                 diff_size     BETWEEN ? AND ? AND
+                 diff_approach BETWEEN ? AND ? AND
+                 diff_overall  BETWEEN ? AND ? AND
                  beatmap_id NOT IN ({})
                  LIMIT 1"""
                  .format(max(preset.acc, 97), 
@@ -106,7 +110,15 @@ class REngine:
                  round(preset.bpm * self.down_precision),
                  round(preset.bpm * self.up_percision),
                  preset.playstyle * self.down_precision,
-                 preset.playstyle * self.up_percision,])
+                 preset.playstyle * self.up_percision,
+                 preset.len       * self.down_precision,
+                 preset.len       * self.up_percision,
+                 preset.cs       * self.down_precision,
+                 preset.cs       * self.up_percision,
+                 preset.ar       * self.down_precision,
+                 preset.ar       * self.up_percision,
+                 preset.od       * self.down_precision,
+                 preset.od       * self.up_percision,])
             
             beatmap_id = cursor.fetchone()
 
@@ -135,7 +147,7 @@ if __name__ == '__main__':
 
     now = time.time()
     engine = REngine()
-    engine.recommend(Preset(User(osu_name = "ThePooN")), 10)
+    engine.recommend(Preset(User(osu_name = "Renondedju")), 10)
     print("Done, here are the results ({}), {}% of precision".format(len(engine.recommendatons), engine.precision * 100))
     for i in range(10):
         print(engine.recommendatons[i].beatmap_id, end = ' - ')
