@@ -406,7 +406,7 @@ class User():
         self.Nomod_recommended += recommended
         return self.Nomod_recommended
 
-    def update_user_stats(self):
+    def update_user_stats(self, force_update:bool = False):
         """ Updating user stats """
 
         if self.osu_id == 0 and self.osu_name == "":
@@ -414,7 +414,7 @@ class User():
 
         #Time to update :D
         #Updating only if one day has passed
-        if self.last_update > time.time() - 86400: #86400 is the number of secs in one day
+        if self.last_update > time.time() - 86400 and not force_update: #86400 is the number of secs in one day
             return
 
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
@@ -432,19 +432,26 @@ class User():
             userinfo = userinfo[0]
 
         #Well, you might not have won enougth pp for now 
-        if (abs(self.raw_pp - float(userinfo['pp_raw']))) < 1.5:
+        if (abs(self.raw_pp - float(userinfo['pp_raw']))) < 1.5 and not force_update:
             return
 
         self.osu_id             = userinfo['user_id']
         self.osu_name           = userinfo['username']
         self.rank               = int(userinfo['pp_rank'])
-        self.playstyle          = 0
         self.raw_pp             = float(userinfo['pp_raw'])
+
+        if self.osu_id != 0:
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
+        elif self.osu_name != "":
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
+
+        self.playstyle          = 0
         self.accuracy_average   = 0
         self.cs_average         = 0
         self.ar_average         = 0
         self.od_average         = 0
         self.pp_average         = 0
+        self.len_average        = 0
         self.bpm_average        = []
 
         self.playrate_dict   = {}
@@ -456,11 +463,6 @@ class User():
         self.DTHR_playrate   = 0.0
         self.HRHD_playrate   = 0.0
         self.DTHRHD_playrate = 0.0
-
-        if self.osu_id != 0:
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
-        elif self.osu_name != "":
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
 
         #Main loop
         for score in userbest:
@@ -477,6 +479,7 @@ class User():
             self.cs_average         += btmap.cs
             self.ar_average         += btmap.ar
             self.od_average         += btmap.od
+            self.len_average        += beatmap.hit_length
 
             self.bpm_average.append(beatmap.get_bpm(btmap))
             self.playstyle   += stars.speed / stars.total
@@ -513,10 +516,11 @@ class User():
             self.DTHRHD_playrate += self.playrate_dict['HDHRNC']
 
         self.playstyle          /= 20.0
-        self.pp_average         = round(self.pp_average / 20.0)
-        self.cs_average         = round(self.cs_average / 20.0)
-        self.ar_average         = round(self.ar_average / 20.0)
-        self.od_average         = round(self.od_average / 20.0)
+        self.pp_average         = round(self.pp_average  / 20.0)
+        self.cs_average         = round(self.cs_average  / 20.0)
+        self.ar_average         = round(self.ar_average  / 20.0)
+        self.od_average         = round(self.od_average  / 20.0)
+        self.len_average        = round(self.len_average / 20.0)
         self.accuracy_average   = round(self.accuracy_average / 0.2)
         self.bpm_high           = round(max(self.bpm_average))
         self.bpm_low            = round(min(self.bpm_average))
@@ -601,5 +605,5 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(osu_name = "ThePoon")
+    user = User(osu_name = "Renondedju")
     user.print_user_profile()
