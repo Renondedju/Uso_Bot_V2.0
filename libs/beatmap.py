@@ -571,19 +571,6 @@ class Beatmap():
 
         return 1
 
-    def get_bpm(self, beatmap):
-        """ Computes the bpm of this beatmap """
-        mpbs = [x.ms_per_beat for x in beatmap.timing_points if x.change]
-
-        if len(mpbs) == 0:
-            return 0
-
-        mpb = sum(mpbs) / len(mpbs)
-
-        if (mpb == 0):
-            return 0
-
-        return 60000 / mpb
 
 if __name__ == '__main__':
 
@@ -595,13 +582,8 @@ if __name__ == '__main__':
     connexion.close()
 
     for id in result:
-        try:
-            beatmap = Beatmap(id[0])
-            if (beatmap.beatmapset_id != 0):
-                continue
-            print(id[0], end=' ')
-            if(beatmap.import_beatmap(False)):
-                beatmap.save_beatmap()
-            print ("- Done")
-        except:
-            print ("- Failed")
+        beatmap = Beatmap(id[0])
+        print(id[0], end=' ')
+        if(beatmap.import_beatmap(False)):
+            beatmap.save_beatmap()
+        print ("- Done")
