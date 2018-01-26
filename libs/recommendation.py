@@ -105,20 +105,20 @@ class REngine:
                  .format(max(preset.acc, 97), 
                          mods, "'00000'" + preset.user.get_recommended(mods)),
 
-                [round(preset.pp  * self.down_precision), 
-                 round(preset.pp  * self.up_percision),
-                 round(preset.bpm * self.down_precision),
-                 round(preset.bpm * self.up_percision),
-                 preset.playstyle * self.down_precision,
-                 preset.playstyle * self.up_percision,
-                 preset.len       * self.down_precision,
-                 preset.len       * self.up_percision,
-                 preset.cs       * self.down_precision,
-                 preset.cs       * self.up_percision,
-                 preset.ar       * self.down_precision,
-                 preset.ar       * self.up_percision,
-                 preset.od       * self.down_precision,
-                 preset.od       * self.up_percision,])
+                [round(preset.up_pp    * self.down_precision), 
+                 round(preset.down_pp  * self.up_percision),
+                 round(preset.up_bpm   * self.down_precision),
+                 round(preset.down_bpm * self.up_percision),
+                 preset.up_playstyle   * self.down_precision,
+                 preset.down_playstyle * self.up_percision,
+                 preset.up_len         * self.down_precision,
+                 preset.down_len       * self.up_percision,
+                 preset.up_cs          * self.down_precision,
+                 preset.down_cs        * self.up_percision,
+                 preset.up_ar          * self.down_precision,
+                 preset.down_ar        * self.up_percision,
+                 preset.up_od          * self.down_precision,
+                 preset.down_od        * self.up_percision,])
             
             beatmap_id = cursor.fetchone()
 

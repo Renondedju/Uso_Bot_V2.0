@@ -19,6 +19,12 @@ class Preset:
         """ Init """
 
         self.user = player
+
+        #Starting at 100% precision
+        self.precision      = 1.0
+        self.up_percision   = 1.0
+        self.down_precision = 1.0
+
         self.reset()
 
         self.mode = 'default'
@@ -32,19 +38,48 @@ class Preset:
             handler_kwargs = {'power': power}
             response = handler(**handler_kwargs)
             
+    def extend_research(self):
+        """ Extending the preset to find more beatmaps 
+            This function is used when a beatmap isn't found
+            using this preset
+        """
+
+        #Loosing 1% of presision
+        self.precision      -= 0.01
+        self.up_percision   += 0.01
+        self.down_precision -= 0.01
+
+        return
+
     def reset(self):
         """ Resets the preset to regular mode """
 
-        self.pp         = self.user.pp_average
-        self.acc        = self.user.accuracy_average
-        self.bpm        = self.user.bpm_average
-        self.len        = self.user.len_average
+        self.precision      = 1.0
+        self.up_percision   = 1.0
+        self.down_precision = 1.0
 
-        self.playstyle  = self.user.playstyle
+        self.up_pp   = self.user.pp_average
+        self.down_pp = self.user.pp_average
 
-        self.od         = self.user.od_average
-        self.ar         = self.user.ar_average
-        self.cs         = self.user.cs_average
+        self.acc     = self.user.accuracy_average
+
+        self.up_bpm   = self.user.bpm_average
+        self.down_bpm = self.user.bpm_average
+
+        self.up_len   = self.user.len_average
+        self.down_len = self.user.len_average
+
+        self.up_playstyle    = self.user.playstyle
+        self.down_playstyle  = self.user.playstyle
+
+        self.up_od   = self.user.od_average
+        self.down_od = self.user.od_average
+
+        self.up_ar   = self.user.ar_average
+        self.down_ar = self.user.ar_average
+
+        self.up_cs   = self.user.cs_average
+        self.down_cs = self.user.cs_average
 
         self.mods       = {
             'Nomod'  : self.user.Nomod_playrate,
@@ -55,7 +90,6 @@ class Preset:
             'DTHR'   : self.user.DTHR_playrate,
             'HRHD'   : self.user.HRHD_playrate,
             'DTHRHD' : self.user.DTHRHD_playrate}
-
 
     #TRAINING MODES SECTION
 
