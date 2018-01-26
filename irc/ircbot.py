@@ -49,7 +49,8 @@ def process_mods(mods, bmap):
         }
     return modinfos
 
-irc = IRCbot('irc.ppy.sh', 'usobot', 'password')
+settings = json.loads(open('../config.json', 'r').read())
+irc = IRCbot('irc.ppy.sh', settings['irc_username'], settings['irc_token'])
 irc.connect()
 engine = REngine()
 stayonline = True
@@ -60,7 +61,7 @@ try: # Might add certain handlers for these in the future
             if msg[1] == 'PRIVMSG':
                 sender = msg[0].split('!')[0]
                 print(f'From {sender}: {msg[3]}')
-                if msg[3].split(' ')[0] == '>r':
+                if msg[3].split(' ')[0] == 'o!r':
                     # TODO make option parsing function
                     count = 1
                     engine.recommend(User(sender), count)
@@ -68,7 +69,7 @@ try: # Might add certain handlers for these in the future
                         bmap = engine.recommendatons[i]
                         mods = process_mods(engine.mods[i], bmap)
                         irc.send_message(sender, build_map(mods, bmap))
-                elif msg[3] == '>recent':
+                elif msg[3] == 'o!recent':
                     irc.send_message(sender, 'This is a #TODO')
                 elif msg[3].split(' ')[0] == 'o!verify':
                     # TODO add memcache check for keys
