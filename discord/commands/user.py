@@ -24,8 +24,17 @@ class _User:
         if not user:
             user = 'cookiezi'
 
+        useer = User(osu_name = user)
+
         # Todo check if user has linked their account
-        user = get_user(self.bot.settings['osu_api_key'], user, 0)[0]
+        user = get_user(self.bot.settings['osu_api_key'], user, 0)
+
+        if len(user) == 0:
+            await ctx.send("No user found")
+            return
+        else:
+            user = user[0]
+
         levelint, levelpercent = divmod(float(user['level']), 1)
 
         # Creating the main infos displays
