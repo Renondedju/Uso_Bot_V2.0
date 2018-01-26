@@ -103,11 +103,12 @@ async def on_command_error(ctx, error):
 
         user = User(0)
         user.set_logs_infos(ctx.message.author.name,
-                        ctx.message.author.avatar,
-                        ctx.message.author.id)
+                            ctx.message.author.avatar,
+                            ctx.message.author.id)
         logs.add_error_log(user, 'On command {}'.format(ctx.command.qualified_name), output)
         logs.send_logs()
-        await ctx.send('Error message here !')
+
+        await ctx.send('Crap, an error ! Need some healing ? {}'.format(settings['discord_server']))
         bot.logger.exception(type(error).__name__, exc_info=error)
 
 # On guild create

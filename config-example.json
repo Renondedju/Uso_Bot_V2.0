@@ -9,6 +9,7 @@
     "beatmap_cache"    : "/root/UsoBot/cache", 
     "owner_discord_id" : "213262036069515264", 
     "discord_token"    : "", 
+    "discord_server"   : "https://discord.gg/Qsw3yD5",
     "invite_link"      : "https://discordapp.com/api/oauth2/authorize?client_id=383993626100891648&permissions=379969&scope=bot",
     "webhook_url"      : "",
     "irc_patch"        : "0.0.1",
