@@ -22,7 +22,7 @@ from libs         import pyttanko
 class User():
     """ User informations """
 
-    def __init__(self, osu_id:int = 0, osu_name:str = ""):
+    def __init__(self, osu_id:int = 0, osu_name:str = "", discord_id:int = 0):
         """ Init """
 
         self.settings      = json.loads(open('../config.json', 'r').read())
@@ -35,7 +35,7 @@ class User():
         #Global informations
         self.osu_id     = osu_id
         self.uso_id     = 0
-        self.discord_id = 0
+        self.discord_id = discord_id
         self.osu_name   = osu_name
         self.rank       = 0
         self.raw_pp     = 0
@@ -98,7 +98,9 @@ class User():
 
     def load_user_profile(self):
         """ Loading a user profile from the database """
-        if (self.osu_id == 0 and self.osu_name == "") or not self.database_path:
+        if (self.osu_id     == 0  and
+            self.osu_name   == "" and
+            self.discord_id == 0) or not self.database_path:
             return
 
         #Connecting to database
@@ -107,9 +109,11 @@ class User():
         
         #Fetching datas from database
         if self.osu_id != 0:
-            query = cursor.execute("SELECT * FROM users WHERE osu_id = ?", [self.osu_id,])
+            query = cursor.execute("SELECT * FROM users WHERE osu_id     = ?", [self.osu_id,])
         elif self.osu_name != "":
-            query = cursor.execute("SELECT * FROM users WHERE osu_name = ?", [self.osu_name,])
+            query = cursor.execute("SELECT * FROM users WHERE osu_name   = ?", [self.osu_name,])
+        elif self.discord_id != 0:
+            query = cursor.execute("SELECT * FROM users WHERE discord_id = ?", [self.discord_id,])
 
         #Making a cool looking dictionary
         colname = [ d[0] for d in query.description ]
@@ -184,6 +188,10 @@ class User():
         self.update_user_stats()
 
         return
+
+    def is_empty(self):
+        """ Checks if a user has been loaded or imported """
+        return self.osu_id == 0 and self.osu_name == ""
 
     def save_user_profile(self):
         """ Saves the user profile into a given database """
@@ -605,5 +613,5 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(osu_name = "Renondedju")
+    user = User(discord_id = 213262036069515264)
     user.print_user_profile()
