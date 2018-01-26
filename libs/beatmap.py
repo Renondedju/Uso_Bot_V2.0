@@ -5,10 +5,11 @@
 """
 
 import os
+import io
 import sys
-import wget
 import json
 import sqlite3
+import requests
 
 sys.path.append(os.path.realpath('../'))
 
@@ -26,6 +27,8 @@ class Beatmap():
         self.settings       = json.loads(open('../config.json', 'r').read())
         self.database_path  = self.settings['database_path']
         self.beatmaps_path  = self.settings['beatmap_cache']
+
+        self.beatmaps_str   = ""
 
         self.beatmap_id     = beatmap_id
         self.uso_id         = 0
@@ -94,12 +97,6 @@ class Beatmap():
 
         self.load_beatmap()
 
-    def __del__(self):
-        """ On beatmap deletion """
-        
-        if self.beatmap_exists():
-            os.system('rm {}/{}.osu'.format(self.beatmaps_path, self.beatmap_id))
-
     def load_beatmap(self):
         """ Loading a beatmap from the database """
 
@@ -107,15 +104,17 @@ class Beatmap():
             return
 
         connexion = sqlite3.connect(self.database_path)
-        cursor = connexion.cursor()
+        cursor    = connexion.cursor()
 
         query = cursor.execute("SELECT * FROM beatmaps WHERE beatmap_id = ?", [self.beatmap_id,])
 
-        colname = [ d[0] for d in query.description ]
+        colname     = [ d[0] for d in query.description ]
         result_list = [ dict(zip(colname, r)) for r in query.fetchall()]
         
         if len(result_list) == 0:
             connexion.close()
+            self.import_beatmap()
+            self.save_beatmap()
             return #No coresponding beatmap
 
         self.uso_id         = result_list[0]['uso_id']
@@ -401,42 +400,6 @@ class Beatmap():
 
         return
 
-    def beatmap_exists(self):
-        """checks if the beatmp is stored"""
-
-        if not self.beatmaps_path:
-            return
-
-        beatmap_path = '{}/{}.osu'.format(self.beatmaps_path, self.beatmap_id)
-        return os.path.exists(beatmap_path)
-
-    def download_beatmap(self):
-        """ Downloads a beatmap """
-
-        if not self.beatmaps_path:
-            return
-
-        if not self.beatmap_exists():
-
-            try:
-                wget.download("https://osu.ppy.sh/osu/{}".format(self.beatmap_id), "{}/{}.osu".format(self.beatmaps_path, self.beatmap_id), bar=None)
-                file = open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
-
-                #If the file we just downloaded is empty (meaning that this beatmap does not exists)
-                #Just deleting it
-
-                if (file.readline() == ''):
-                    os.remove("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
-                file.close()
-
-            except:
-                #Could not download this beatmap for some obscure reasons
-                pass
-        else:
-            return True
-
-        return False
-
     def use_pyttanko(self, beatmap):
         """Processing beatmap to extrace juicy pp stats"""
 
@@ -462,39 +425,35 @@ class Beatmap():
         return peppers
 
     def in_database(self):
+        """ Checks if the beatmaps is in the database"""
+        return self.uso_id != 0
 
-        connexion = sqlite3.connect(self.database_path)
-        cursor = connexion.cursor()
+    def beatmap_string(self):
+        """Returns the beatmap_str or import it if needed"""
 
-        cursor.execute("SELECT beatmap_id FROM beatmaps WHERE beatmap_id = ?", [self.beatmap_id,])
-        result = cursor.fetchall()
+        if self.beatmaps_str != "":
+            return self.beatmaps_str
 
-        connexion.close()
+        if self.beatmap_id == 0:
+            return ""
 
-        return len(result) == 1
+        r = requests.get('https://osu.ppy.sh/osu/{}'.format(self.beatmap_id))
 
-    def import_beatmap(self, update: bool = True):
+        self.beatmaps_str = r.text
+
+        return self.beatmaps_str
+
+    def import_beatmap(self):
         """ Imports a beatmap into the database """
 
-        #Check if the beatmap is already in the database
-        self.download_beatmap()
-
         #Checking ig the beatmap is already imported
-        if(self.in_database() and update):
+        if self.in_database():
             return 0
 
-        try:
-            beatmap = pyttanko.parser().map(open("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id)))
+        print('Importing beatmap {}'.format(self.beatmap_id))
 
-            #Removing our download if the beatmap mode isn't std (0)
-            if (beatmap.mode != 0):
-                os.remove("{}/{}.osu".format(self.beatmaps_path, self.beatmap_id))
-                return 0
-
-            peppers = self.use_pyttanko(beatmap)
-
-        except:
-            return 0
+        beatmap = pyttanko.parser().map(io.StringIO(self.beatmap_string()))
+        peppers = self.use_pyttanko(beatmap)
 
         if (round(peppers['nomod', '100'][1].total, 2) == 0):
             return 0
@@ -517,14 +476,14 @@ class Beatmap():
         self.diff_approach      = beatmap.ar
         self.diff_drain         = beatmap.hp
 
-        self.beatmapset_id      = api_data['beatmapset_id']
+        self.beatmapset_id      = int(api_data['beatmapset_id'])
+        self.total_length       = int(api_data['total_length'])
+        self.last_update        = int(api_data['last_update'])
+        self.hit_length         = int(api_data['hit_length'])
+        self.bpm                = int(api_data['bpm'])
         self.approved_date      = api_data['approved_date']
-        self.total_length       = api_data['total_length']
-        self.last_update        = api_data['last_update']
-        self.hit_length         = api_data['hit_length']
         self.approved           = api_data['approved']
         self.tags               = api_data['tags']
-        self.bpm                = api_data['bpm']
 
         self.max_combo          = beatmap.max_combo()
         self.artist             = beatmap.artist
@@ -573,17 +532,4 @@ class Beatmap():
 
 
 if __name__ == '__main__':
-
-    settings = json.loads(open('../config.json', 'r').read())
-    connexion = sqlite3.connect(settings['database_path'])
-    cursor = connexion.cursor()
-    cursor.execute("SELECT beatmap_id FROM beatmaps")
-    result = cursor.fetchall()
-    connexion.close()
-
-    for id in result:
-        beatmap = Beatmap(id[0])
-        print(id[0], end=' ')
-        if(beatmap.import_beatmap(False)):
-            beatmap.save_beatmap()
-        print ("- Done")
+    beatmap = Beatmap(786096)

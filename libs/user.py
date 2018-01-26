@@ -476,28 +476,24 @@ class User():
         for score in userbest:
             
             beatmap = Beatmap(int(score['beatmap_id']))
-            if (beatmap.import_beatmap()):
-                beatmap.save_beatmap()
-
-            btmap       = pyttanko.parser().map(open("{}/{}.osu".format(beatmap.beatmaps_path, beatmap.beatmap_id)))
-            pp, stars   = self.get_pyttanko(btmap, int(score['enabled_mods']), score['count300'], score['count100'], score['count50'], score['countmiss'], score['maxcombo'])
             
             self.accuracy_average   += pyttanko.acc_calc(int(score['count300']), int(score['count100']), int(score['count50']), int(score['countmiss']))
             self.pp_average         += float(score['pp'])
-            self.cs_average         += btmap.cs
-            self.ar_average         += btmap.ar
-            self.od_average         += btmap.od
-            self.len_average        += beatmap.hit_length
+            self.cs_average         += beatmap.diff_size
+            self.ar_average         += beatmap.diff_approach
+            self.od_average         += beatmap.diff_overall
+            self.len_average        += int(beatmap.hit_length)
 
-            self.bpm_average.append(beatmap.get_bpm(btmap))
-            self.playstyle   += stars.speed / stars.total
+            self.bpm_average.append(beatmap.bpm)
+            self.playstyle   += beatmap.playstyle
 
             #Mods playrate
 
             mod = pyttanko.mods_str(int(score['enabled_mods']))
-
-            if mod not in self.playrate_dict: self.playrate_dict[mod] = 100.0 / 20.0
-            else: self.playrate_dict[mod] += 100.0 / 20.0
+            if not mod in self.playrate_dict:
+                self.playrate_dict[mod] = 100.0 / 20.0
+            else:
+                self.playrate_dict[mod] += 100.0 / 20.0
 
         if 'nomod' in self.playrate_dict:   #None
             self.Nomod_playrate   = self.playrate_dict['nomod']
@@ -514,7 +510,7 @@ class User():
         if 'HDHR' in self.playrate_dict:    #HDHR
             self.HRHD_playrate    = self.playrate_dict['HDHR']
         if 'HDHRDT' in self.playrate_dict:  #HDHRDT
-            self.DTHRHD_playrate  = self.playrate_dict['HDHR']
+            self.DTHRHD_playrate  = self.playrate_dict['HDHRDT']
         # Nightcore should be considered Double Time to uso
         if 'NC' in self.playrate_dict:      #NC
             self.DT_playrate     += self.playrate_dict['NC']
@@ -613,5 +609,5 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(discord_id = 213262036069515264)
+    user = User(osu_name = "filsdelama")
     user.print_user_profile()
