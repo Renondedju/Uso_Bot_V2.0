@@ -443,15 +443,17 @@ class User():
         if (abs(self.raw_pp - float(userinfo['pp_raw']))) < 1.5 and not force_update:
             return
 
+        samples = int(self.settings['samples_count'])
+
         self.osu_id             = userinfo['user_id']
         self.osu_name           = userinfo['username']
         self.rank               = int(userinfo['pp_rank'])
         self.raw_pp             = float(userinfo['pp_raw'])
 
         if self.osu_id != 0:
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, 20)
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, samples)
         elif self.osu_name != "":
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, 20)
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, samples)
 
         self.playstyle          = 0
         self.accuracy_average   = 0
@@ -491,9 +493,9 @@ class User():
 
             mod = pyttanko.mods_str(int(score['enabled_mods']))
             if not mod in self.playrate_dict:
-                self.playrate_dict[mod] = 100.0 / 20.0
+                self.playrate_dict[mod] = 100.0 / samples
             else:
-                self.playrate_dict[mod] += 100.0 / 20.0
+                self.playrate_dict[mod] += 100.0 / samples
 
         if 'nomod' in self.playrate_dict:   #None
             self.Nomod_playrate   = self.playrate_dict['nomod']
@@ -519,13 +521,13 @@ class User():
         if 'HDHRNC' in self.playrate_dict:  #HDHRNC
             self.DTHRHD_playrate += self.playrate_dict['HDHRNC']
 
-        self.playstyle          /= 20.0
-        self.pp_average         = round(self.pp_average  / 20.0)
-        self.cs_average         = round(self.cs_average  / 20.0)
-        self.ar_average         = round(self.ar_average  / 20.0)
-        self.od_average         = round(self.od_average  / 20.0)
-        self.len_average        = round(self.len_average / 20.0)
-        self.accuracy_average   = round(self.accuracy_average / 0.2)
+        self.playstyle          /= samples
+        self.pp_average         = round(self.pp_average  / samples)
+        self.cs_average         = round(self.cs_average  / samples)
+        self.ar_average         = round(self.ar_average  / samples)
+        self.od_average         = round(self.od_average  / samples)
+        self.len_average        = round(self.len_average / samples)
+        self.accuracy_average   = round(self.accuracy_average / samples / 100.0)
         self.bpm_high           = round(max(self.bpm_average))
         self.bpm_low            = round(min(self.bpm_average))
         self.bpm_average        = round(sum(self.bpm_average) / len(self.bpm_average))

@@ -12,6 +12,7 @@
     "discord_server"   : "https://discord.gg/Qsw3yD5",
     "invite_link"      : "https://discordapp.com/api/oauth2/authorize?client_id=383993626100891648&permissions=379969&scope=bot",
     "webhook_url"      : "",
+    "samples_count"    :  "20",
     "irc_patch"        : "0.0.1",
     "discord_patch"    : "0.0.1",
     "cogs": ["commands.uptime",
