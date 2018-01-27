@@ -8,38 +8,56 @@
 
 import requests
 
-def get_beatmap(key, beatmap_id):
+def get_beatmap(key, beatmap_id, session = None):
     """ Fetch a beatmap from bancho api """
 
     url = "https://osu.ppy.sh/api/get_beatmaps?k={}&b={}".format(key, beatmap_id)
-    return requests.get(url).json()
+    if (not session):
+        return requests.get(url).json()
+    else:
+        return session.get(url).json()
 
-def get_beatmapset(key, set_id):
+def get_beatmapset(key, set_id, session = None):
     """ Fetch a beatmapset from bancho api """
 
     url = "https://osu.ppy.sh/api/get_beatmaps?k={}&s={}".format(key, set_id)
-    return requests.get(url).json()
+    if (not session):
+        return requests.get(url).json()
+    else:
+        return session.get(url).json()
 
-def get_scores(key, beatmap_id, user, mode):
+def get_scores(key, beatmap_id, user, mode, session = None):
     """ Fetch a user score on a given beatmap from bancho api """
 
     url = "https://osu.ppy.sh/api/get_scores?k={}&u={}&b={}&m={}".format(key, user, beatmap_id, mode)
-    return requests.get(url).json()
+    if (not session):
+        return requests.get(url).json()
+    else:
+        return session.get(url).json()
 
-def get_user(key, user, mode):
+def get_user(key, user, mode, session = None):
     """ Fetch user data from bancho api """
 
     url = "https://osu.ppy.sh/api/get_user?k={}&u={}&m={}".format(key, user, mode)
-    return requests.get(url).json()
+    if (not session):
+        return requests.get(url).json()
+    else:
+        return session.get(url).json()
 
-def get_user_best(key, user, mode, limit):
+def get_user_best(key, user, mode, limit, session = None):
     """ Fetch bests scores for a user from bancho api """
 
     url = "https://osu.ppy.sh/api/get_user_best?k={}&u={}&m={}&limit={}".format(key, user, mode, limit)
-    return requests.get(url).json()
+    if (not session):
+        return requests.get(url).json()
+    else:
+        return session.get(url).json()
 
-def get_user_recent(key, user, mode):
+def get_user_recent(key, user, mode, session = None):
     """ Fetch the recents scores for a user from bancho api """
 
     url = "https://osu.ppy.sh/api/get_user_recent?k={}&u={}&m={}".format(key, user, mode)
-    return requests.get(url).json()
+    if (not session):
+        return requests.get(url).json()
+    else:
+        return session.get(url).json()

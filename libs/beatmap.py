@@ -20,8 +20,11 @@ from libs.osuapi import get_beatmap
 class Beatmap():
     """ Beatmaps class """
 
-    def __init__(self, beatmap_id: int):
+    def __init__(self, beatmap_id: int, session = None):
         """ Init """
+
+        #Session : used to signignificaly improve api requests speed
+        self.session = session
 
         #path for later
         self.settings       = json.loads(open('../config.json', 'r').read())
@@ -437,7 +440,10 @@ class Beatmap():
         if self.beatmap_id == 0:
             return ""
 
-        r = requests.get('https://osu.ppy.sh/osu/{}'.format(self.beatmap_id))
+        if (not self.session):
+            r = requests.get('https://osu.ppy.sh/osu/{}'.format(self.beatmap_id))
+        else:
+            r = self.session.get('https://osu.ppy.sh/osu/{}'.format(self.beatmap_id))
 
         self.beatmaps_str = r.text
 
@@ -459,7 +465,7 @@ class Beatmap():
             return 0
 
         #The beatmap seems to be fine, fetching api datas
-        api_data = get_beatmap(self.settings['osu_api_key'], self.beatmap_id)
+        api_data = get_beatmap(self.settings['osu_api_key'], self.beatmap_id, self.session)
         if (api_data[0]):
             api_data = api_data[0]
         else:
@@ -476,12 +482,12 @@ class Beatmap():
         self.diff_approach      = beatmap.ar
         self.diff_drain         = beatmap.hp
 
-        self.beatmapset_id      = int(api_data['beatmapset_id'])
-        self.total_length       = int(api_data['total_length'])
-        self.last_update        = int(api_data['last_update'])
-        self.hit_length         = int(api_data['hit_length'])
-        self.bpm                = int(api_data['bpm'])
+        self.beatmapset_id      = int  (api_data['beatmapset_id'])
+        self.total_length       = int  (api_data['total_length'])
+        self.hit_length         = int  (api_data['hit_length'])
+        self.bpm                = float(api_data['bpm'])
         self.approved_date      = api_data['approved_date']
+        self.last_update        = api_data['last_update']
         self.approved           = api_data['approved']
         self.tags               = api_data['tags']
 
@@ -532,4 +538,10 @@ class Beatmap():
 
 
 if __name__ == '__main__':
-    beatmap = Beatmap(786096)
+
+    file = open('beatmaps.txt', 'r')
+    lines = file.readlines()
+
+    for line in lines:
+        id = int(line.strip('https://osu.ppy.sh/b/'))
+        beatmap = Beatmap(id)

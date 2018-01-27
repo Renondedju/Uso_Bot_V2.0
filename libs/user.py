@@ -11,6 +11,7 @@ import json
 import time
 import sqlite3
 import asyncio
+import requests
 
 sys.path.append(os.path.realpath('../'))
 
@@ -428,12 +429,13 @@ class User():
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
 
         self.last_update = time.time()
+        session = requests.Session()
 
         #Fetching datas from bancho api
         if self.osu_id != 0:
-            userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu)
+            userinfo = get_user(self.settings['osu_api_key'], self.osu_id, Mode.Osu, session)
         elif self.osu_name != "":
-            userinfo = get_user(self.settings['osu_api_key'], self.osu_name, Mode.Osu)
+            userinfo = get_user(self.settings['osu_api_key'], self.osu_name, Mode.Osu, session)
 
         if (len(userinfo) == 0):
             print('User id {}, {} does not exists !'.format(self.osu_id, self.osu_name))
@@ -453,9 +455,9 @@ class User():
         self.raw_pp             = float(userinfo['pp_raw'])
 
         if self.osu_id != 0:
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, samples)
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_id, Mode.Osu, samples, session)
         elif self.osu_name != "":
-            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, samples)
+            userbest = get_user_best(self.settings['osu_api_key'], self.osu_name, Mode.Osu, samples, session)
 
         self.playstyle          = 0
         self.accuracy_average   = 0
@@ -479,7 +481,7 @@ class User():
         #Main loop
         for score in userbest:
             
-            beatmap = Beatmap(int(score['beatmap_id']))
+            beatmap = Beatmap(int(score['beatmap_id']), session)
             
             self.accuracy_average   += pyttanko.acc_calc(int(score['count300']), int(score['count100']), int(score['count50']), int(score['countmiss']))
             self.pp_average         += float(score['pp'])
@@ -611,5 +613,5 @@ class User():
 
 if __name__ == '__main__':
     # --- Test lines !
-    user = User(osu_name = "filsdelama")
+    user = User(osu_name = "Vaxei")
     user.print_user_profile()
