@@ -422,10 +422,12 @@ class User():
 
         #Time to update :D
         #Updating only if one day has passed
-        if self.last_update > time.time() - 86400 and not force_update: #86400 is the number of secs in one day
+        if time.time() <= self.last_update + 86400.0 and not force_update: #86400 is the number of secs in one day
             return
 
         print ("Updating {}, {} users stats".format(self.osu_id, self.osu_name))
+
+        self.last_update = time.time()
 
         #Fetching datas from bancho api
         if self.osu_id != 0:
@@ -531,8 +533,6 @@ class User():
         self.bpm_high           = round(max(self.bpm_average))
         self.bpm_low            = round(min(self.bpm_average))
         self.bpm_average        = round(sum(self.bpm_average) / len(self.bpm_average))
-
-        self.last_update = time.time()
 
         self.save_user_profile()
     
