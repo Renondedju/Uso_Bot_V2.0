@@ -19,15 +19,7 @@ class Preset:
         """ Init """
 
         self.user = player
-
-        #Starting at 100% precision
-        self.precision      = 1.0
-        self.up_percision   = 1.0
-        self.down_precision = 1.0
-
         self.reset()
-
-        self.mode = 'default'
 
         #Calling the method corresponding to the mode specified
         handler = getattr(self, 'set_%s_mode' % mode, None)
@@ -37,26 +29,9 @@ class Preset:
 
             handler_kwargs = {'power': power}
             response = handler(**handler_kwargs)
-            
-    def extend_research(self):
-        """ Extending the preset to find more beatmaps 
-            This function is used when a beatmap isn't found
-            using this preset
-        """
-
-        #Loosing 1% of presision
-        self.precision      -= 0.01
-        self.up_percision   += 0.01
-        self.down_precision -= 0.01
-
-        return
 
     def reset(self):
         """ Resets the preset to regular mode """
-
-        self.precision      = 1.0
-        self.up_percision   = 1.0
-        self.down_precision = 1.0
 
         self.up_pp   = self.user.pp_average
         self.down_pp = self.user.pp_average
@@ -82,7 +57,7 @@ class Preset:
         self.down_cs = self.user.cs_average
 
         self.mods       = {
-            'Nomod'  : self.user.Nomod_playrate,
+            ''       : self.user.Nomod_playrate,
             'HR'     : self.user.HR_playrate,
             'HD'     : self.user.HD_playrate,
             'DT'     : self.user.DT_playrate,
@@ -160,7 +135,7 @@ class Preset:
     def select_mods(self, mods:int):
         """ Selects a mod for the preset from the Mods enum """
 
-        selected_mods = 'Nomod'
+        selected_mods = ''
 
         if mods == Mods.HardRock:
             selected_mods = 'HR'

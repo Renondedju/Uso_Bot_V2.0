@@ -58,22 +58,13 @@ class REngine:
             self.down_precision = 0.0
             self.precision      = 0.0
 
-    def select_mod(self, user:User):
-        """ Selecting a random mod """
+    def get_mods(self, mods_dict):
 
-        mods_chance = (user.Nomod_playrate,
-                       user.HR_playrate,
-                       user.HD_playrate,
-                       user.DT_playrate,
-                       user.DTHD_playrate,
-                       user.DTHR_playrate,
-                       user.HRHD_playrate,
-                       user.DTHRHD_playrate)
+        choice = self.weighted_choice(zip(mods_dict.keys(), mods_dict.values()))
 
-        mods_name  = ("", "_HR", "_HD", "_DT", "_DTHD", "_DTHR", "_HRHD", "_DTHRHD")
-        dictionary = zip(mods_name, mods_chance)
-
-        return self.weighted_choice(dictionary)
+        if choice == "":
+            return ""
+        return "_" + choice
 
     def recommend(self, preset:Preset, count:int):
         """ R Algo """
@@ -89,7 +80,7 @@ class REngine:
         #Beatmaps research loop
         while (len(self.recommendatons) < count):
 
-            mods = self.select_mod(preset.user)
+            mods = self.get_mods(preset.mods)
 
             #Main beatmap request
             cursor.execute("""SELECT beatmap_id FROM beatmaps WHERE
