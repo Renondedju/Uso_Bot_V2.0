@@ -12,6 +12,7 @@ sys.path.append(os.path.realpath('../'))
 
 from libs.osuapi  import *
 from libs.user    import User
+from libs.mods    import Mode
 from libs.beatmap import Beatmap
 
 class _User:
@@ -19,15 +20,31 @@ class _User:
         self.bot = bot
 
     @commands.command()
-    async def user(self, ctx, *, user=None):
-        """ Bot command """
-        if not user:
-            user = 'cookiezi'
+    async def user(self, ctx):
+        """User command """ 
 
-        useer = User(osu_name = user)
+        command = ctx.message.content.lower()
+
+        mode = Mode.Osu
+        if   ' taiko' in command:
+            mode = Mode.Taiko
+            command = command.replace(' taiko', '')
+        elif ' ctb'   in command:
+            mode = Mode.Ctb
+            command = command.replace(' ctb', '')
+        elif ' mania' in command:
+            mode = Mode.Mania
+            command = command.replace(' mania', '')
+        else:
+            command = command.replace(' std', '')
+            command = command.replace(' standard', '')
+            command = command.replace(' osu', '')
+
+        command = command.replace('{}user '.format(self.bot.settings['prefix']), '')
+        #Now command should only be the username
 
         # Todo check if user has linked their account
-        user = get_user(self.bot.settings['osu_api_key'], user, 0)
+        user = get_user(self.bot.settings['osu_api_key'], command, mode)
 
         if len(user) == 0:
             await ctx.send("No user found")
