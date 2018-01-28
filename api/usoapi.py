@@ -109,73 +109,22 @@ def build_map(engine):
     return mapinfos
 
 def process_mods(mods, bmap):
-    modinfos = {
-        'mods': 'nomod', 'pp_100': 0, 
-        'pp_99': 0, 'pp_98': 0, 'pp97': 0
-    }
     if mods == '':
         modinfos = {
-            'mods': 'nomod',
+            'mods': '',
             'pp_100': bmap.PP_100,
             'pp_99': bmap.PP_99,
             'pp_98': bmap.PP_98,
             'pp_97': bmap.PP_97
         }
-    if mods == 'HD':
-        modinfos = {
-            'mods': 'HD',
-            'pp_100': bmap.PP_100_HD,
-            'pp_99': bmap.PP_99_HD,
-            'pp_98': bmap.PP_98_HD,
-            'pp_97': bmap.PP_97_HD
-        }
-    if mods == 'HR':
-        modinfos = {
-            'mods': 'HR',
-            'pp_100': bmap.PP_100_HR,
-            'pp_99': bmap.PP_99_HR,
-            'pp_98': bmap.PP_98_HR,
-            'pp_97': bmap.PP_97_HR
-        }
-    if mods == 'DT':
-        modinfos = {
-            'mods': 'DT',
-            'pp_100': bmap.PP_100_DT,
-            'pp_99': bmap.PP_99_DT,
-            'pp_98': bmap.PP_98_DT,
-            'pp_97': bmap.PP_97_DT
-        }
-    if mods == 'DTHD':
-        modinfos = {
-            'mods': 'HDDT',
-            'pp_100': bmap.PP_100_DTHD,
-            'pp_99': bmap.PP_99_DTHD,
-            'pp_98': bmap.PP_98_DTHD,
-            'pp_97': bmap.PP_97_DTHD
-        }
-    if mods == 'DTHR':
-        modinfos = {
-            'mods': 'HRDT',
-            'pp_100': bmap.PP_100_DTHR,
-            'pp_99': bmap.PP_99_DTHR,
-            'pp_98': bmap.PP_98_DTHR,
-            'pp_97': bmap.PP_97_DTHR
-        }
-    if mods == 'HRHD':
-        modinfos = {
-            'mods': 'HDHR',
-            'pp_100': bmap.PP_100_HRHD,
-            'pp_99': bmap.PP_99_HRHD,
-            'pp_98': bmap.PP_98_HRHD,
-            'pp_97': bmap.PP_97_HRHD
-        }
-    if mods == 'DTHRHD':
-        modinfos = {
-            'mods': 'HDHRDT',
-            'pp_100': bmap.PP_100_DTHRHD,
-            'pp_99': bmap.PP_99_DTHRHD,
-            'pp_98': bmap.PP_98_DTHRHD,
-            'pp_97': bmap.PP_97_DTHRHD
+    else:
+        # This should work in theory xd
+        modinfo = {
+            'mods': f'+{mods}',
+            'pp_100': getattr(bmap, f'PP_100_{mods}'),
+            'pp_99': getattr(bmap, f'PP_99_{mods}'),
+            'pp_98': getattr(bmap, f'PP_98_{mods}'),
+            'pp_97': getattr(bmap, f'PP_97_{mods}')
         }
     return modinfos
 
