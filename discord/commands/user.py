@@ -20,31 +20,32 @@ class _User:
         self.bot = bot
 
     @commands.command()
-    async def user(self, ctx):
-        """User command """ 
+    async def user(self, ctx, *, inputs):
+        """User command """
 
-        command = ctx.message.content.lower()
+        inputs = list(inputs)
 
-        mode = Mode.Osu
-        if   ' taiko' in command:
+        if   'taiko' in command:
             mode = Mode.Taiko
-            command = command.replace(' taiko', '')
-        elif ' ctb'   in command:
+            inputs.pop(inputs.index('taiko'))
+        elif 'ctb'   in command:
             mode = Mode.Ctb
-            command = command.replace(' ctb', '')
-        elif ' mania' in command:
+            inputs.pop(inputs.index('ctb'))
+        elif 'mania' in command:
             mode = Mode.Mania
-            command = command.replace(' mania', '')
+            inputs.pop(inputs.index('mania'))
         else:
-            command = command.replace(' std', '')
-            command = command.replace(' standard', '')
-            command = command.replace(' osu', '')
+            mode = Mode.Osu
+            if 'std'      in inputs: inputs.pop(inputs.index('std'))
+            if 'standard' in inputs: inputs.pop(inputs.index('standard'))
+            if 'osu'      in inputs: inputs.pop(inputs.index('osu'))
 
-        command = command.replace('{}user '.format(self.bot.settings['prefix']), '')
-        #Now command should only be the username
+        # Now list should only contain the username otherwise check if they have linked their account
+        if len(inputs) < 1:
+            # TODO check if user has linked their account
+            inputs = ['cookiezi'] # Fall back to cookiezi for now
 
-        # Todo check if user has linked their account
-        user = get_user(self.bot.settings['osu_api_key'], command, mode)
+        user = get_user(self.bot.settings['osu_api_key'], inputs[0], mode)
 
         if len(user) == 0:
             await ctx.send("No user found")
