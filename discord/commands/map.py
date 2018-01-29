@@ -42,7 +42,7 @@ class Map:
         info += "([no vid](https://osu.ppy.sh/d/{}n)) ".format(bmdb.beatmap_id)
         info += " [osu!direct](osu://b/{}) ".format(bmdb.beatmapset_id)
         info += "[bloodcat](https://bloodcat.com/osu/s/{})***\n".format(bmdb.beatmap_id)
-        info += "  ▸ **Stars:** *{:.2f}★* ".format(stars.total)
+        info += "  ▸ **Stars:** *{:.2f}★* ".format(bmdb.difficultyrating)
         # This applies any difference to the time with mods
         mins, secs = divmod((bmdb.total_length / speed_mult) / 1000, 60)
         info += "**Length:** *{}:{}*  ".format(int(mins), int(secs))
