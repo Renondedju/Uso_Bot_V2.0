@@ -44,7 +44,7 @@ class Map:
         info += "[bloodcat](https://bloodcat.com/osu/s/{})***\n".format(bmdb.beatmap_id)
         info += "  ▸ **Stars:** *{:.2f}★* ".format(stars.total)
         # This applies any difference to the time with mods
-        mins, secs = divmod((bmap.hitobjects[-1].time / speed_mult) / 1000, 60)
+        mins, secs = divmod((bmdb.total_length / speed_mult) / 1000, 60)
         info += "**Length:** *{}:{}*  ".format(int(mins), int(secs))
         info += "**Max Combo:** *{}x*\n    ▸ ".format(bmdb.max_combo)
         if mods != 0: info += " **Mods:** {} ".format(mod_emoji(pyttanko.mods_str(mods)))
