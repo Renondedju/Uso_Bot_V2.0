@@ -46,3 +46,13 @@ class Mode():
 	Taiko 	= 1
 	Ctb		= 2
 	Mania	= 3
+
+def to_str(mode:Mode):
+	if mode == Mode.Osu:
+		return "osu"
+	if mode == Mode.Taiko:
+		return "taiko"
+	if mode == Mode.Ctb:
+		return "ctb"
+	if mode == Mode.Mania:
+		return "mania"
