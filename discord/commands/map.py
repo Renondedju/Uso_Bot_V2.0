@@ -31,13 +31,10 @@ class Map:
             else: ctx.send('No proper map link found'); return
             bmdb = Beatmap(mapid)
             bmdb.import_beatmap()
-            bmap = pyttanko.parser().map(open(bmdb.beatmaps_path + mapid + '.osu'))
-            await self.map_embed(ctx, bmdb, bmap, pyttanko.mods_from_str(mods.lower()))
+            await self.map_embed(ctx, bmdb, pyttanko.mods_from_str(mods))
 
-    async def map_embed(self, ctx, bmdb, bmap, mods):
+    async def map_embed(self, ctx, bmdb, mods):
         # Gets the stars and pp values for the map with the given mods
-        stars = pyttanko.diff_calc().calc(bmap, mods=mods)
-        pp100, pp99, pp98 = await self.get_pp_by_acc(bmap, stars, mods)
         speed_mult, ar, cs, od, _ = pyttanko.mods_apply(mods, bmdb.diff_approach, 
                                                         bmdb.diff_size, 
                                                         bmdb.diff_overall)
@@ -56,20 +53,10 @@ class Map:
         info += "**AR:** *{}*  **CS:** *{}*  **OD:** *{}*\n".format(
             round(ar, 1), round(cs, 1), round(od, 1))
         info += "      ▸ **98%** *{}PP*  **99%** *{}PP*  **100%** *{}PP*\n".format(
-            pp98, pp99, pp100)
+            bmdb.pp_98, bmdb.pp_99, bmdb.pp_100)
         em = discord.Embed(description=info, colour=0x00FFC0)
         em.set_author(name=bmdb.artist + ' - ' + bmdb.title + ' by ' + bmdb.creator)
         await ctx.message.channel.send(embed=em)
-
-    async def get_pp_by_acc(self, bmap, stars, mods):
-        """Uses pyttanko to get the pp for 98%, 99% and 100% accs"""
-        n300, n100, n50 = pyttanko.acc_round(100, len(bmap.hitobjects), 0)
-        pp100, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=mods, n300=n300, n100=n100, n50=n50, nmiss=0)
-        n300, n100, n50 = pyttanko.acc_round(99, len(bmap.hitobjects), 0)
-        pp99, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=mods, n300=n300, n100=n100, n50=n50, nmiss=0)
-        n300, n100, n50 = pyttanko.acc_round(98, len(bmap.hitobjects), 0)
-        pp98, _, _, _, _ = pyttanko.ppv2(stars.aim, stars.speed, bmap=bmap, mods=mods, n300=n300, n100=n100, n50=n50, nmiss=0)
-        return (int(pp100), int(pp99), int(pp98))
 
 def mod_emoji(mods):
     """Because emoji >= letters?"""
