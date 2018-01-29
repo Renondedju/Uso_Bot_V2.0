@@ -31,7 +31,7 @@ class Map:
             else: ctx.send('No proper map link found'); return
             bmdb = Beatmap(mapid)
             bmdb.import_beatmap()
-            await self.map_embed(ctx, bmdb, pyttanko.mods_from_str(mods))
+            await self.map_embed(ctx, bmdb, check_for_mods(mods))
 
     async def map_embed(self, ctx, bmdb, mods):
         # Gets the stars and pp values for the map with the given mods
@@ -57,6 +57,13 @@ class Map:
         em = discord.Embed(description=info, colour=0x00FFC0)
         em.set_author(name=bmdb.artist + ' - ' + bmdb.title + ' by ' + bmdb.creator)
         await ctx.message.channel.send(embed=em)
+
+def check_for_mods(line):
+    # The only mods we check for are HD, HR, DT, and .. no that's it
+    if 'HD' in line: number += 1<<3
+    if 'HR' in line: number += 1<<4
+    if 'DT' in line: number += 1<<6
+    return number
 
 def mod_emoji(mods):
     """Because emoji >= letters?"""
