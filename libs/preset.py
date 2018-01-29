@@ -132,6 +132,14 @@ class Preset:
 
     #END TRAINING MODES SECTION
 
+    def mode_exists(self, mode:str):
+
+        handler = getattr(self, 'set_%s_mode' % mode, None)
+
+        if handler:
+            return True
+        return False
+
     def select_mods(self, mods:int):
         """ Selects a mod for the preset from the Mods enum """
 
