@@ -53,7 +53,7 @@ class Map:
         info += "**AR:** *{}*  **CS:** *{}*  **OD:** *{}*\n".format(
             round(ar, 1), round(cs, 1), round(od, 1))
         info += "      ▸ **98%** *{}PP*  **99%** *{}PP*  **100%** *{}PP*\n".format(
-            bmdb.pp_98, bmdb.pp_99, bmdb.pp_100)
+            bmdb.PP_98, bmdb.PP_99, bmdb.PP_100)
         em = discord.Embed(description=info, colour=0x00FFC0)
         em.set_author(name=bmdb.artist + ' - ' + bmdb.title + ' by ' + bmdb.creator)
         await ctx.message.channel.send(embed=em)
