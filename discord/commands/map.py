@@ -35,8 +35,9 @@ class Map:
 
     async def map_embed(self, ctx, bmdb, mods):
         # Gets the stars and pp values for the map with the given mods
-        speed_mult, ar, cs, od, _ = pyttanko.mods_apply(mods, bmdb.diff_approach, 
-                                                        bmdb.diff_size, 
+        mods = pyttanko.mods_from_str(mods)
+        speed_mult, ar, cs, od, _ = pyttanko.mods_apply(mods, bmdb.diff_approach,
+                                                        bmdb.diff_size,
                                                         bmdb.diff_overall)
         info =  "***[Download](https://osu.ppy.sh/d/{})".format(bmdb.beatmap_id)
         info += "([no vid](https://osu.ppy.sh/d/{}n)) ".format(bmdb.beatmap_id)
@@ -52,8 +53,9 @@ class Map:
         info += " **BPM:** *{}*  ".format(round(bmdb.bpm, 2))
         info += "**AR:** *{}*  **CS:** *{}*  **OD:** *{}*\n".format(
             round(ar, 1), round(cs, 1), round(od, 1))
+        pp = process_mods(mods, bmdb)
         info += "      ▸ **98%** *{}PP*  **99%** *{}PP*  **100%** *{}PP*\n".format(
-            bmdb.PP_98, bmdb.PP_99, bmdb.PP_100)
+            pp['pp_98'], pp['pp_99'], pp['pp_100'])
         em = discord.Embed(description=info, colour=0x00FFC0)
         em.set_author(name=bmdb.artist + ' - ' + bmdb.title + ' by ' + bmdb.creator)
         await ctx.message.channel.send(embed=em)
@@ -80,6 +82,22 @@ def mod_emoji(mods):
     mods = mods.replace("AP", "<:mod_auto:327800780444794880>")
     mods = mods.replace("NF", "<:mod_nofail:327800869523554315>")
     return mods
+
+def process_mods(mods, bmap):
+    if mods == '':
+        modinfos = {
+            'pp_100': bmap.PP_100,
+            'pp_99': bmap.PP_99,
+            'pp_98': bmap.PP_98,
+        }
+    else:
+        # This should work in theory xd
+        modinfo = {
+            'pp_100': getattr(bmap, f'PP_100_{mods}'),
+            'pp_99': getattr(bmap, f'PP_99_{mods}'),
+            'pp_98': getattr(bmap, f'PP_98_{mods}'),
+        }
+    return modinfos
 
 def setup(bot):
     bot.add_cog(Map(bot))
