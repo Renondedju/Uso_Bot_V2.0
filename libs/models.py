@@ -10,15 +10,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from .database import Base
+from .database import Base, session
 
 
 class Beatmap(Base):
-    __tablename__ = 'beatmaps'
-
     id = Column(Integer, Sequence('beatmap_id_seq'), primary_key=True)
     beatmap_id = Column(Integer)
     beatmapset_id = Column(Integer)
+
+    beatmap_str = Column(String(50))
 
     bpm = Column(Integer)
     difficultyrating = Column(Float)
@@ -42,18 +42,31 @@ class Beatmap(Base):
     mode = Column(String)
     tags = Column(String)
     approved = Column(String)
-    approved_date = Column(String)
-    last_update = Column()
+    approved_date = Column(DateTime)
+    last_update = Column(DateTime)
 
-    pps = relationship("PP", back_populates="beatmap")
+    pps = relationship(
+        "PP",
+        back_populates="beatmap",
+        cascade="save-update, merge, delete, delete-orphan")
+
+    @classmethod
+    def getBeatmap(cls, osuId: int, accuracy=None: int, mods=None: str):
+        '''
+        get or import beatmap by osuId
+        TODO: implement prefetch for pps by accuracy and mods
+        '''
+        beatmap = session \
+            .query(cls) \
+            .filter(beatmap_id=osuId) \
+            .one_or_none()
+        return beatmap or import_beatmap(osuId)
 
     def __str__(self):
         return "{title}[{version}]".format(title=self.title, version=self.version)
 
 
 class PP(Base):
-    __tablename__ = 'pps'
-
     id = Column(Integer, Sequence('pp_id_seq'), primary_key=True)
     accuracy = Column(Integer)
     mod = Column(String(6))
