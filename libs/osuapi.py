@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 
-	Api library for Uso bot
-	By Renondedju and Jamu
+Api library for Uso bot
+By Renondedju and Jamu
 
 """
+
+class ApiError(Exception):
+    pass
+
+import settings
 
 import requests
 
@@ -61,3 +66,44 @@ def get_user_recent(key, user, mode, session = None):
         return requests.get(url).json()
     else:
         return session.get(url).json()
+
+
+class Api:
+    '''
+    bancho api abstraction layer for python
+
+    Returns plain json for now, declare return type classes + serializer
+    or maybe simply use github.com/khazhyk/osuapi/ ?
+    '''
+
+    api_key = settings.OSU_API_KEY
+    api_url = settings.OSU_API_URL
+
+    def __init__(self, session=None):
+        '''
+        can take a session as argument, is that even needed? just reuse Api
+        object instead of session
+        '''
+        self.session = session or requests.session()
+
+    def request(self, endpoint, args):
+        print(self.api_url + endpoint, {'k': self.api_key, **args})
+        r = self.session.get(self.api_url + endpoint, params={'k': self.api_key, **args})
+        if r.ok:
+            return r.json()
+        raise ApiError(r.reson)  # or something like that
+
+    def get_beatmap_file(self, beatmap_id):
+        """ Fetch beatmap file from bancho api """
+        r = self.session.get('https://osu.ppy.sh/osu/{}'.format(beatmap_id))
+        if r.ok:
+            return r.text
+        raise ApiError(r.reson)  # or something like that
+
+    def get_beatmap(self, beatmap_id):
+        """ Fetch a beatmap from bancho api """
+        return self.request('get_beatmaps', {'b': beatmap_id})
+
+    def get_beatmapset(self, set_id):
+        """ Fetch a beatmapset from bancho api """
+        return self.request('get_beatmaps', {'s': set_id})

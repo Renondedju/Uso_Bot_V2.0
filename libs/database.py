@@ -3,6 +3,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr
 
+import settings
+
+
+engine = create_engine(settings.DATABASE, echo=True)
+Session = sessionmaker(bind=engine)
+
 
 class ExtendedBase:
     '''
@@ -11,10 +17,11 @@ class ExtendedBase:
     '''
     @declared_attr
     def __tablename__(cls):
-        return cls.__name__.lower()
+        return cls.__name__.lower() + "s"
 
-engine = create_engine('sqlite:///:memory:', echo=True)
-Session = sessionmaker(bind=engine)
-session = Session()
 
 Base = declarative_base(cls=ExtendedBase)
+
+
+def initDB():
+    Base.metadata.create_all(engine)
