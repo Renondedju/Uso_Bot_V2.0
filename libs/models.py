@@ -153,8 +153,10 @@ class Beatmap(Base):
 
     pps = relationship(
         "PP",
-        back_populates="beatmap",
-        cascade="save-update, merge, delete, delete-orphan")
+        backref='beatmap',
+        lazy='dynamic',
+        cascade="save-update, merge, delete, delete-orphan",
+    )
 
     def beatmap_file(self):
         return get_beatmap_file(self.beatmap_id)
@@ -191,9 +193,9 @@ class PP(Base):
     accuracy = Column(Float)
     mod = Column(Integer)
     pps = Column(Integer)
-    beatmap_id = Column(Integer, ForeignKey('beatmaps.id'))
+    beatmap_id = Column(Integer, ForeignKey('beatmap.id'))
 
-    beatmap = relationship("Beatmap", back_populates="pps")
+    # beatmap = relationship("Beatmap", back_populates="pps")
 
     def __str__(self):
         return "{pps:.0f}pp {acc}%{mod}".format(
@@ -204,3 +206,6 @@ class PP(Base):
 
     def __repr__(self):
         return "<PP: {}>".format(self)
+
+
+# class User(Base):
