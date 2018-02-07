@@ -20,18 +20,18 @@ class _User:
         self.bot = bot
 
     @commands.command()
-    async def user(self, ctx, *, inputs):
+    async def user(self, ctx, *inputs):
         """User command """
 
         inputs = list(inputs)
 
-        if   'taiko' in command:
+        if   'taiko' in inputs:
             mode = Mode.Taiko
             inputs.pop(inputs.index('taiko'))
-        elif 'ctb'   in command:
+        elif 'ctb'   in inputs:
             mode = Mode.Ctb
             inputs.pop(inputs.index('ctb'))
-        elif 'mania' in command:
+        elif 'mania' in inputs:
             mode = Mode.Mania
             inputs.pop(inputs.index('mania'))
         else:
