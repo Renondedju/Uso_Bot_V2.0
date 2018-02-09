@@ -6,12 +6,11 @@ By Renondedju and Jamu
 
 """
 
-class ApiError(Exception):
-    pass
+import requests
+from enum import Enum
 
 import settings
 
-import requests
 
 def get_beatmap(key, beatmap_id, session = None):
     """ Fetch a beatmap from bancho api """
@@ -68,6 +67,17 @@ def get_user_recent(key, user, mode, session = None):
         return session.get(url).json()
 
 
+class ApiError(Exception):
+    pass
+
+
+class Mode(Enum):
+    OSU = 0
+    TAIKO = 1
+    CTB = 2
+    MANIA = 3
+
+
 class Api:
     '''
     bancho api abstraction layer for python
@@ -79,7 +89,7 @@ class Api:
     api_key = settings.OSU_API_KEY
     api_url = settings.OSU_API_URL
 
-    def __init__(self, session=None):
+    def __init__(self, session=None, mode=None):
         '''
         can take a session as argument, is that even needed? just reuse Api
         object instead of session
@@ -107,3 +117,13 @@ class Api:
     def get_beatmapset(self, set_id):
         """ Fetch a beatmapset from bancho api """
         return self.request('get_beatmaps', {'s': set_id})
+
+    def get_user_bests(self, user_id, mode=None, limit=500):
+        """ Fetch a beatmapset from bancho api """
+        params = {
+            'u': user_id,
+            'limit': limit,
+        }
+        if mode is not None:
+            params['m'] = mode.value
+        return self.request('get_user_best', params)

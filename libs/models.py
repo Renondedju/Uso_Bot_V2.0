@@ -16,6 +16,7 @@ from sqlalchemy import (
     ForeignKey,
     DateTime,
 )
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from osuapi import Api
 
@@ -121,9 +122,16 @@ def import_beatmap(osuId):
     return beatmap
 
 
+def import_user(osu_id=None, osu_name=None):
+    user = user(osu_id=osu_id)
+    best = user.get_best()
+    user.update_stats
+
+
+
 class Beatmap(Base):
-    id = Column(Integer, Sequence('beatmap_id_seq'), primary_key=True)
-    beatmap_id = Column(Integer)
+    id = Column(Integer, Sequence('beatmap_id_seq'), primary_key=True, index=True)
+    beatmap_id = Column(Integer, unique=True, index=True)
     beatmapset_id = Column(Integer)
 
     bpm = Column(Integer)
@@ -140,14 +148,14 @@ class Beatmap(Base):
     total_length = Column(Integer)
     max_combo = Column(Integer)
 
-    artist = Column(String)
-    artist = Column(String)
-    creator = Column(String)
-    title = Column(String)
-    version = Column(String)
-    mode = Column(String)
-    tags = Column(String)
-    approved = Column(String)
+    artist = Column(String(30))
+    artist = Column(String(30))
+    creator = Column(String(30))
+    title = Column(String(30))
+    version = Column(String(30))
+    mode = Column(String(30))
+    tags = Column(String(30))
+    approved = Column(String(30))
     approved_date = Column(DateTime)
     last_update = Column(DateTime)
 
@@ -155,7 +163,11 @@ class Beatmap(Base):
         "PP",
         backref='beatmap',
         lazy='dynamic',
-        cascade="save-update, merge, delete, delete-orphan",
+    )
+    recommendations = relationship(
+        "Recommandation",
+        backref='beatmap',
+        lazy='dynamic',
     )
 
     def beatmap_file(self):
@@ -189,13 +201,11 @@ class Beatmap(Base):
 
 
 class PP(Base):
-    id = Column(Integer, Sequence('pp_id_seq'), primary_key=True)
+    id = Column(Integer, Sequence('pp_id_seq'), primary_key=True, index=True)
     accuracy = Column(Float)
     mod = Column(Integer)
     pps = Column(Integer)
-    beatmap_id = Column(Integer, ForeignKey('beatmap.id'))
-
-    # beatmap = relationship("Beatmap", back_populates="pps")
+    beatmap_id = Column(Integer, ForeignKey('beatmap.id'), index=True)
 
     def __str__(self):
         return "{pps:.0f}pp {acc}%{mod}".format(
@@ -208,4 +218,67 @@ class PP(Base):
         return "<PP: {}>".format(self)
 
 
-# class User(Base):
+class User(Base):
+    id = Column(Integer, Sequence('user_id_seq'), primary_key=True, index=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
+    updated = Column(DateTime(timezone=True), onupdate=func.now())
+
+    osu_id = Column(Integer)
+    discord_id = Column(Integer)
+
+    osu_name = Column(String(30))
+    discord_name = Column(String(30))
+    # discord_icon = Column()
+
+    rank = Column(Integer)
+    raw_pp = Column(Integer)
+    playstyle = Column(Float)
+    api_key = Column(String)
+
+    discord_patch = Column(String(10))
+    irc_patch = Column(String(10))
+
+    requests_max = Column(Integer)
+    donations = Column(Integer)
+
+    recommendations = relationship(
+        'Recommandation',
+        backref='user',
+        lazy='dynamic',
+    )
+    stats = relationship(
+        'PlayerStat',
+        backref='user',
+        lazy='dynamic',
+    )
+
+
+class PlayerStat(Base):
+    id = Column(Integer, Sequence('stat_id_seq'), primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    playrate = Column(Integer)
+    mod = Column(Integer)
+
+    accuracy_average = Column(Float)
+    pp_average = Column(Float)
+    bpm_low = Column(Integer)
+    bpm_average = Column(Float)
+    bpm_high = Column(Integer)
+    od_average = Column(Float)
+    ar_average = Column(Float)
+    cs_average = Column(Float)
+    len_average = Column(Float)
+
+
+class AuthToken(Base):
+    id = Column(Integer, Sequence('auth_id_seq'), primary_key=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
+    token = Column(String(10))
+
+
+class Recommandation(Base):
+    id = Column(Integer, Sequence('recommendation_id_seq'), primary_key=True, index=True)
+    created = Column(DateTime(timezone=True), server_default=func.now())
+    user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    beatmap_id = Column(Integer, ForeignKey('beatmap.id'))
+    mod = Column(Integer)
