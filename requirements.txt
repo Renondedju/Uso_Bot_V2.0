@@ -1,0 +1,3 @@
+discord.py
+sqlalchemy
+git+https://github.com/khazhyk/osuapi

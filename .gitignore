@@ -1,5 +1,7 @@
 config.json
 .vscode/
+builds/
+MAPS/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -106,3 +108,4 @@ ENV/
 # Uso specific
 config.json
 logs.txt
+uso2.db
