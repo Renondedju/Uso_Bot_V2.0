@@ -118,7 +118,7 @@ class Api:
         """ Fetch a beatmapset from bancho api """
         return self.request('get_beatmaps', {'s': set_id})
 
-    def get_user_bests(self, user_id, mode=None, limit=500):
+    def get_user_best(self, user_id, mode=None, limit=200):
         """ Fetch a beatmapset from bancho api """
         params = {
             'u': user_id,
@@ -127,3 +127,12 @@ class Api:
         if mode is not None:
             params['m'] = mode.value
         return self.request('get_user_best', params)
+
+    def get_user(self, user_id, mode=None):
+        """ Fetch user data from bancho api """
+        params = {
+            'u': user_id,
+        }
+        if mode is not None:
+            params['m'] = mode.value
+        return self.request('get_user', params)[0]

@@ -1,0 +1,5 @@
+# Ignore all beatmaps here
+*
+# bit not the gitignore ;)
+!.gitignore
+

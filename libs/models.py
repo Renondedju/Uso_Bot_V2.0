@@ -122,11 +122,35 @@ def import_beatmap(osuId):
     return beatmap
 
 
-def import_user(osu_id=None, osu_name=None):
-    user = user(osu_id=osu_id)
-    best = user.get_best()
-    user.update_stats
-
+def import_user(osu_id=None, osu_name=None, session=None):
+    s = session or Session()
+    key = osu_id or osu_name
+    api = Api()
+    userinfo = api.get_user(key)
+    user = User(
+        osu_id=userinfo['user_id'],
+        osu_name=userinfo['username'],
+        rank=int(userinfo['pp_rank']),
+        raw_pp=float(userinfo['pp_raw']),
+    )
+    bests = api.get_user_best(user.osu_id)
+    for score in bests:
+        print(score)
+        beatmap = Beatmap.get_beatmap(int(score['beatmap_id']), s)
+        print(beatmap)
+        user.plays.append(
+            Play(
+                beatmap=beatmap,
+                mod=score['enabled_mods'],
+                pp=score['pp'],
+                accuracy=pyttanko.acc_calc(
+                    int(score['count300']),
+                    int(score['count100']),
+                    int(score['count50']),
+                    int(score['countmiss'])),
+            )
+        )
+    return user
 
 
 class Beatmap(Base):
@@ -164,6 +188,11 @@ class Beatmap(Base):
         backref='beatmap',
         lazy='dynamic',
     )
+    plays = relationship(
+        "Play",
+        backref='beatmap',
+        lazy='dynamic',
+    )
     recommendations = relationship(
         "Recommandation",
         backref='beatmap',
@@ -177,7 +206,7 @@ class Beatmap(Base):
         return map_path(self.beatmap_id)
 
     @classmethod
-    def getBeatmap(cls, osuId, accuracy=None, mod=None, session=None):
+    def get_beatmap(cls, osuId, accuracy=None, mod=None, session=None):
         '''
         get or import beatmap by osuId
         TODO: implement prefetch for pps by accuracy and mods
@@ -246,11 +275,26 @@ class User(Base):
         backref='user',
         lazy='dynamic',
     )
+    plays = relationship(
+        'Play',
+        backref='user',
+        lazy='dynamic',
+    )
     stats = relationship(
         'PlayerStat',
         backref='user',
         lazy='dynamic',
     )
+
+
+class Play(Base):
+    id = Column(Integer, Sequence('play_id_seq'), primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    beatmap_id = Column(Integer, ForeignKey('beatmap.id'), index=True)
+
+    mod = Column(Integer)
+    pp = Column(Float)
+    accuracy = Column(Float)
 
 
 class PlayerStat(Base):
