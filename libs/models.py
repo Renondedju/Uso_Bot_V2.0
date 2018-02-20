@@ -1,7 +1,6 @@
 import io
 import itertools
 import operator
-import pyttanko
 import requests
 import sqlalchemy
 from dateutil.parser import parse
@@ -18,10 +17,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from osuapi import Api
 
-import settings
-from database import Base, Session
+from . import pyttanko
+from . import settings
+from .database import Base, Session
+from .osuapi import Api
 # import beatmap as beatmap_api
 
 

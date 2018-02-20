@@ -3,10 +3,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import declared_attr
 
-import settings
+from . import settings
 
 
-engine = create_engine(settings.DATABASE, echo=True)
+engine = create_engine(settings.DATABASE)
 Session = sessionmaker(bind=engine)
 
 

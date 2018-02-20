@@ -9,7 +9,7 @@ By Renondedju and Jamu
 import requests
 from enum import Enum
 
-import settings
+from . import settings
 
 
 def get_beatmap(key, beatmap_id, session = None):

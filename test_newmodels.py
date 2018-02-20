@@ -1,5 +1,7 @@
-from database import Session, initDB
-from models import Beatmap, PP, import_beatmap
+#!/usr/bin/env python3
+
+from libs.database import Session, initDB
+from libs.models import Beatmap, PP, import_beatmap
 
 
 if __name__ == '__main__':

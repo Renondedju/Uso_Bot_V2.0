@@ -1,5 +1,5 @@
 discord.py
 sqlalchemy
-git+https://github.com/khazhyk/osuapi
+# git+https://github.com/khazhyk/osuapi
 requests
 python-dateutil
