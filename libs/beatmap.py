@@ -9,12 +9,13 @@ import io
 import sys
 import json
 import sqlite3
+import discord
 import requests
 
 sys.path.append(os.path.realpath('../'))
 
 from libs        import pyttanko
-from libs.mods   import Mods
+from libs.mods   import *
 from libs.osuapi import get_beatmap
 
 class Beatmap():
@@ -536,6 +537,47 @@ class Beatmap():
 
         return 1
 
+    def map_embed(self, mods):
+
+        if (mods != '') : mods = '_' + mods
+        pp_mods = {'pp_100' : getattr(self, 'PP_100' + mods),
+                   'pp_99'  : getattr(self, 'PP_99'  + mods),
+                   'pp_98'  : getattr(self, 'PP_98'  + mods)}
+
+        # Gets the stars and pp values for the map with the given mods
+        pytanko_mods = pyttanko.mods_from_str(mods)
+        speed_mult, ar, cs, od, _ = pyttanko.mods_apply(pytanko_mods, 
+                                                        self.diff_approach,
+                                                        self.diff_size,
+                                                        self.diff_overall)
+        
+        # This applies any difference to the time with mods
+        mins, secs = divmod((self.total_length / speed_mult) / 1000, 60)        
+                                                        
+
+        info =  "***[Download](https://osu.ppy.sh/d/{})"        .format(self.beatmap_id)
+        info += "([no vid](https://osu.ppy.sh/d/{}n)) "         .format(self.beatmap_id)
+        info += "[bloodcat](https://bloodcat.com/osu/s/{})***\n".format(self.beatmap_id)
+
+        info += "  ▸ **Stars:** *{:.2f}★* ".format(self.difficultyrating)
+        info += "**Length:** *{}:{}*  ".format(int(mins), int(secs))
+        info += "**Max Combo:** *{}x*\n    ▸ ".format(self.max_combo)
+        if mods != 0: info += " **Mods:** {} ".format(mod_emoji(mods))
+
+        # We only need one or two decimal point precision for these
+        info += " **BPM:** *{}*  ".format(round(self.bpm, 2))
+        info += "**AR:** *{}*  **CS:** *{}*  **OD:** *{}*\n".format(
+            round(self.diff_approach, 1),
+            round(self.diff_size, 1),
+            round(self.diff_overall, 1))
+
+        info += "      ▸ **98%** *{}PP*  **99%** *{}PP*  **100%** *{}PP*\n".format(
+            pp_mods['pp_98'], pp_mods['pp_99'], pp_mods['pp_100'])
+
+        em = discord.Embed(description=info, colour=0x00FFC0)
+        em.set_author(name=self.artist + ' - ' + self.title + ' by ' + self.creator)
+
+        return em
 
 if __name__ == '__main__':
 

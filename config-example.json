@@ -18,5 +18,6 @@
     "cogs": ["commands.uptime",
         "commands.link_user",
         "commands.map",
-        "commands.user"]
+        "commands.user",
+        "commands.recommend"]
 }
