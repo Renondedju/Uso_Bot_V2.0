@@ -11,6 +11,9 @@ from libs.user           import User
 from libs.beatmap        import Beatmap
 from libs.recommendation import REngine
 
+from commands.test import *
+from commands.help import *
+
 def build_map(mods, bmap):
     mapinfos  =  '\x01ACTION'
     mapinfos += f' [https://osu.ppy.sh/b/{bmap.beatmap_id}'
@@ -67,7 +70,17 @@ def run_irc():
             message = irc.get_privmsg()
             if (message[0]): #if we got a message
                 print('From ' + message[1]['sender'] + ' : ' + message[1]['message'])
-                logs.add_log(User(osu_name=message[1]['sender']), 'IRC : ' + message[1]['message'])
+                user = User(osu_name=message[1]['sender'])
+                logs.add_log(user, 'IRC : ' + message[1]['message'])
+
+                #checking if the message is a command
+                if (message[1]['message'].startswith(settings['prefix'])):
+                    command_text = message[1]['message'].strip(settings['prefix']).split(' ')[0]
+
+                    if (command_text == 'test'):
+                        irc_command_test(irc, user)
+                    if (command_text == 'help'):
+                        irc_command_help(irc, user)
 
             #Checking buffer and sending messages if needed
             irc.check_buffer()
