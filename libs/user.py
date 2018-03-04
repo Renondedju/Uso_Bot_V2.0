@@ -131,12 +131,12 @@ class User():
 
             return
         
-        self.uso_id     = result_list[0]['uso_id']
-        self.discord_id = result_list[0]['discord_id']
-        self.osu_id     = result_list[0]['osu_id']
-        self.osu_name   = result_list[0]['osu_name']
-        self.rank       = result_list[0]['rank']
-        self.raw_pp     = result_list[0]['raw_pp']
+        self.rank         = result_list[0]['rank']
+        self.uso_id       = result_list[0]['uso_id']
+        self.osu_id       = result_list[0]['osu_id']
+        self.raw_pp       = result_list[0]['raw_pp']
+        self.osu_name     = result_list[0]['osu_name']
+        self.discord_id   = result_list[0]['discord_id']
         
         #User performances
         self.accuracy_average   = result_list[0]['accuracy_average']
@@ -446,6 +446,7 @@ class User():
 
         #Well, you might not have won enougth pp for now 
         if (abs(self.raw_pp - float(userinfo['pp_raw']))) < 1.5 and not force_update:
+            self.save_user_profile()
             return
 
         samples = int(self.settings['samples_count'])
