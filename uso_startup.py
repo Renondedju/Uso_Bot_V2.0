@@ -33,9 +33,13 @@ run_log_thread = True
 def send_logs():
     """ Sending logs every 10 Sec to avoid slowing down commands """
     print('Running log thread ..')
+    
     while run_log_thread:
-        time.sleep(10)
-        logs.send_logs()
+        try:
+            time.sleep(10)
+            logs.send_logs()
+        except:
+            pass
     
     print('Terminated log thread !')
     return

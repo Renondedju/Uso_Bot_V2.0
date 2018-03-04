@@ -29,6 +29,26 @@ class Log():
         self.settings = settings
         self.payload  = {'embeds': []}
 
+    def get_icon_url(self, user):
+        url = 'https://a.ppy.sh/10406668'
+
+        if  (user.osu_id     != 0):
+            url = 'https://a.ppy.sh/{}'.format(user.osu_id)
+        elif(user.discord_id != 0 and user.discord_icon != 0):
+            url = 'https://cdn.discordapp.com/avatars/{}/{}.png'.format(user.discord_id, user.discord_icon)
+
+        return url
+
+    def get_user_name(self, user):
+        name = 'None'
+
+        if   (str(user.discord_name) != 'None' and user.discord_name != ""):
+            name = user.discord_name
+        elif (str(user.osu_name)     != 'None' and user.osu_name     != ""):
+            name = user.osu_name
+
+        return name
+
     def add_log(self, user, description):
         """ Adding a simple log to the payloads """
 
@@ -38,8 +58,8 @@ class Log():
             'color': 0,
 
             'author': {
-                'name': '{}'.format(user.osu_name if not user.discord_name else user.discord_name),
-                'icon_url': 'https://cdn.discordapp.com/avatars/{}/{}.png'.format(user.discord_id, user.discord_icon)
+                'name': self.get_user_name(user),
+                'icon_url': self.get_icon_url(user)
             },
             'footer': {
                 'text': datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
@@ -59,8 +79,8 @@ class Log():
             'color': int("0xe74c3c", 16),
 
             'author': {
-                'name': '{}'.format(user.osu_name if not user.discord_name else user.discord_name),
-                'icon_url': 'https://cdn.discordapp.com/avatars/{}/{}.png'.format(user.discord_id, user.discord_icon)
+                'name': self.get_user_name(user),
+                'icon_url': self.get_icon_url(user)
             },
             'footer': {
                 'text': datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
@@ -81,7 +101,7 @@ class Log():
 
             'author': {
                 'name': 'Uso! - BOT',
-                'icon_url': 'https://cdn.discordapp.com/avatars/318357311951208448/8c753cebbac3481fd90485087eaf20df.webp?size=256'
+                'icon_url': 'https://a.ppy.sh/10406668'
             },
             'footer': {
                 'text': datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
@@ -107,7 +127,7 @@ class Log():
 
             'author': {
                 'name': 'Uso! - BOT',
-                'icon_url': 'https://cdn.discordapp.com/avatars/318357311951208448/8c753cebbac3481fd90485087eaf20df.webp?size=256'
+                'icon_url': 'https://a.ppy.sh/10406668'
             },
             'footer': {
                 'text': datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
@@ -131,7 +151,7 @@ class Log():
 
             'author': {
                 'name': 'Uso! - BOT',
-                'icon_url': 'https://cdn.discordapp.com/avatars/318357311951208448/8c753cebbac3481fd90485087eaf20df.webp?size=256'
+                'icon_url': 'https://a.ppy.sh/10406668'
             },
             'footer': {
                 'text': datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
