@@ -2,10 +2,11 @@
 from __main__ import *
 
 from irc import IRCbot
-import re, os, sys
+import re, os, sys, traceback
 
 sys.path.append(os.path.realpath('../'))
 
+from datetime            import datetime
 from libs.user           import User
 from libs.beatmap        import Beatmap
 from libs.recommendation import REngine
@@ -70,8 +71,24 @@ def run_irc():
 
             #Checking buffer and sending messages if needed
             irc.check_buffer()
+
         except KeyboardInterrupt:
             irc.close()
+
+        except Exception as e:
+            ex_type, ex, tb = sys.exc_info()
+            errors = traceback.format_tb(tb)
+            date   = datetime.now().strftime('%Y/%m/%d at %H:%M:%S')
+
+            errorReport = '\n\n---ERROR REPORT---  ' + date + '\n'
+            for error in errors:
+                errorReport += error
+            errorReport += '{0} : {1}'.format(type(ex).__name__, ex.args)
+            
+            logs.add_error_log(User(osu_name=message[1]['sender']), message[1]['message'], errorReport)
+            irc.send_message(message[1]['sender'], 'Damn ! An error ! I created a report, this should be fixed soon :)')
+            print (errorReport)
+
 
     irc.close()
 

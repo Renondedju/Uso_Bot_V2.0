@@ -75,7 +75,7 @@ class Log():
 
         new_payload = {
 
-            'description': '{}\n```{}```'.format(description, (error[:1800] + '...') if len(error) > 75 else error),
+            'description': '{}\n```{}```'.format(description, (error[:1800] + '\n...') if len(error) > 1800 else error),
             'color': int("0xe74c3c", 16),
 
             'author': {
