@@ -62,7 +62,7 @@ async def ping(ctx):
 bot.remove_command('help')
 @bot.command(name='help')
 async def _help(ctx):
-    await ctx.send('Google it :V')
+    await ctx.send('https://github.com/Renondedju/Uso_Bot_V2.0/blob/master/docs/index.md')
 
 # --- BOT CHECKS ---
 
@@ -73,7 +73,7 @@ async def command_check(ctx):
     user.set_logs_infos(ctx.message.author.name,
                         ctx.message.author.avatar,
                         ctx.message.author.id)
-    logs.add_log(user, ctx.message.content)
+    logs.add_log(user, ctx.guild.name + '/' + str(ctx.message.channel) + ' : ' + ctx.message.content)
     return True
 
 # --- BOT EVENTS ---
