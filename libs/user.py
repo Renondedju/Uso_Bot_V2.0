@@ -4,6 +4,7 @@
     Osu users library for uso bot
     By Renondedju and Jamu
 """
+from __main__ import *
 
 import os
 import sys
@@ -26,7 +27,7 @@ class User():
     def __init__(self, osu_id:int = 0, osu_name:str = "", discord_id:int = 0):
         """ Init """
 
-        self.settings      = json.loads(open('../config.json', 'r').read())
+        self.settings      = settings
         self.database_path = self.settings['database_path']
 
         #Logs infos

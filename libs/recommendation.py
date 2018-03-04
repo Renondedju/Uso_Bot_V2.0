@@ -6,6 +6,8 @@
 
 """
 
+from __main__ import *
+
 import os
 import sys
 
@@ -26,7 +28,7 @@ class REngine:
     def __init__(self):
         """ Init """
 
-        self.settings = json.loads(open('../config.json', 'r').read())
+        self.settings = settings
         self.database_path = self.settings['database_path']
 
         # Mod selection

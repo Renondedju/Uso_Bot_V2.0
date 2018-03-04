@@ -3,6 +3,7 @@
     Beatmap library for uso bot
     By Renondedju and Jamu
 """
+from __main__ import *
 
 import os
 import io
@@ -28,7 +29,7 @@ class Beatmap():
         self.session = session
 
         #path for later
-        self.settings       = json.loads(open('../config.json', 'r').read())
+        self.settings       = settings
         self.database_path  = self.settings['database_path']
         self.beatmaps_path  = self.settings['beatmap_cache']
 

@@ -6,6 +6,8 @@
 
 """
 
+from __main__ import *
+
 import os
 import sys
 import json
@@ -24,7 +26,7 @@ class Log():
     def __init__(self):
         """ Init """
 
-        self.settings = json.loads(open('../config.json', 'r').read())
+        self.settings = settings
         self.payload  = {'embeds': []}
 
     def add_log(self, user, description):

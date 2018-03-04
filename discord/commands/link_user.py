@@ -1,5 +1,7 @@
 from discord.ext import commands
 
+from __main__ import *
+
 import json
 import discord
 import asyncio
@@ -19,7 +21,7 @@ from libs.userlink_key import userlink
 
 class Link_User:
     def __init__(self, bot):
-        self.settings = json.loads(open('../config.json', 'r').read())
+        self.settings = settings
         self.bot      = bot
 
     @commands.command(name="link")

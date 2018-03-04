@@ -4,10 +4,10 @@ import socket, time
 
 class IRCbot:
     def __init__(self, server, nick, passw):
-        self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.irc    = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
-        self.nick = nick
-        self.passw = passw
+        self.nick   = nick
+        self.passw  = passw
         self.buffer = {}
 
     def send_message(self, target, msg):
@@ -54,13 +54,13 @@ class IRCbot:
     def pong(self, msg):
         '''Responds to pings sent by the IRC server'''
         self.irc.send(f'PONG {msg[-1]}\n'.encode())
-        # So we know it's still connected during debugging
-        print('My heart fluttered.')
 
     def connect(self):
         '''Connects and logs into the IRC server'''
         self.irc.connect((self.server, 6667))
+
         print(f'Connected to: {self.server}')
+
         self.irc.send(f'USER {self.nick} {self.nick} {self.nick} :Test bot\n'.encode())
         self.irc.send(f'PASS {self.passw}\n'.encode())
         self.irc.send(f'NICK {self.nick}\n'.encode())
@@ -69,23 +69,33 @@ class IRCbot:
         '''Recieve, split, and parse data coming from the irc server'''
         messages = []
         data = self.irc.recv(2048)
+
         if not data:
             self.reconnect()
             return messages
+
         text = data.decode('utf-8')
+
         for line in text.split('\n'):
             if line.strip() != '':
                 parsed = self.parse_line(line)
-                if parsed[1] == 'PING': self.pong(parsed)
+                if parsed[1] == 'PING':
+                    self.pong(parsed)
                 # This is so we don't process these, as there are a lot of them
-                elif parsed[1] != 'QUIT': messages.append(parsed)
+                elif parsed[1] != 'QUIT':
+                    messages.append(parsed)
+
         return messages
 
     def parse_line(self, line):
         '''Parse lines of data with regex'''
         parsed = re.findall('^(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$', line)
-        try: return parsed[0] # Don't judge this, I just want to see why it randomly crashes sometimes xd
-        except: print(line); return ('', '', '', '')
+        try:
+            return parsed[0]
+            # Don't judge this, I just want to see why it randomly crashes sometimes xd
+        except:
+            print(line)
+            return ('', '', '', '')
 
     def close(self):
         '''I guess this is to properly handle closing the connection?'''
@@ -98,33 +108,9 @@ class IRCbot:
         self.irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect()
 
-if __name__ == '__main__':
-    '''Example of how the bot class should be used'''
-    irc = IRCbot('irc.ppy.sh', 'username', 'password')
-    irc.connect()
-    stayonline = True
-    try: # Might add certain handlers for these in the future
-        while stayonline == True:
-            for msg in irc.get_text():
-                if msg[1] == 'PRIVMSG':
-                    sender = msg[0].split('!')[0]
-                    print(f'From {sender}: {msg[3]}')
-                    if msg[3] == 'test':
-                        irc.send_message(sender, 'you failed')
-                    elif msg[3] == 'test me':
-                        irc.send_message(sender, '\x01ACTION is a cool bot\x01')
-                    elif msg[3] == 'test link':
-                        irc.send_message(sender, '[https://osu.ppy.sh/home Here]\'s a good time')
-                elif msg[1] in ['001', '372', '375', '376']:
-                    print(msg[3].strip())
-                elif msg[1] in ['311', '319', '312', '318', '401']:
-                    print(f'Whois {msg[2].split(" ")[1]}: {msg[3].strip()}')
-                elif msg[1] == '464':
-                    print('Bad authentication token.')
-                    stayonline = False
-                    break
-                else: print(msg)
-            irc.check_buffer()
-        else: irc.close()
-    except KeyboardInterrupt:
-        irc.close()
+    def get_privmsg(self):
+        message = self.get_text()
+
+        if (len(message) > 0):
+            return [True, {'sender' : message[0][2], 'message' : message[0][3]}]
+        return [False, {'sender' : '', 'message' : ''}]
