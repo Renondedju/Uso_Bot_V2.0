@@ -73,7 +73,11 @@ async def command_check(ctx):
     user.set_logs_infos(ctx.message.author.name,
                         ctx.message.author.avatar,
                         ctx.message.author.id)
-    logs.add_log(user, ctx.guild.name + '/' + str(ctx.message.channel) + ' : ' + ctx.message.content)
+                        
+    if (ctx.guild != None):
+        logs.add_log(user, ctx.guild.name + '/' + str(ctx.message.channel) + ' : ' + ctx.message.content)
+    else:
+        logs.add_log(user, str(ctx.message.channel) + ' : ' + ctx.message.content)
     return True
 
 # --- BOT EVENTS ---
