@@ -12,8 +12,7 @@ sys.path.insert(0, './api')
 config_path = './config.json'
 settings    = json.loads(open(config_path, 'r').read())
 
-#Userlink key thats an optimisation todo
-link_dictionary = {}
+link_dictionary = {} # Osu id : [Key, Discord Id]
 
 from libs.logs import Log
 from threading import Thread

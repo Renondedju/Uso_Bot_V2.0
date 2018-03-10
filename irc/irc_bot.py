@@ -13,6 +13,7 @@ from libs.recommendation import REngine
 
 from commands.test import *
 from commands.help import *
+from commands.link import *
 
 def build_map(mods, bmap):
     mapinfos  =  '\x01ACTION'
@@ -75,12 +76,15 @@ def run_irc():
 
                 #checking if the message is a command
                 if (message[1]['message'].startswith(settings['prefix'])):
-                    command_text = message[1]['message'].strip(settings['prefix']).split(' ')[0]
+                    command_text  = message[1]['message'].strip(settings['prefix']).split(' ')[0]
+                    command_param = message[1]['message'].strip(settings['prefix']).split(' ')[1]
 
                     if (command_text == 'test'):
                         irc_command_test(irc, user)
                     if (command_text == 'help'):
                         irc_command_help(irc, user)
+                    if (command_text == 'link'):
+                        irc_command_link(irc, user, command_param)
 
             #Checking buffer and sending messages if needed
             irc.check_buffer()

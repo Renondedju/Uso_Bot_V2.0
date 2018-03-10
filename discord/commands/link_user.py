@@ -47,19 +47,20 @@ class Link_User:
                 embed = discord.Embed(title = "Link account", colour = 0x3498db)
                 embed.description = ("Please check your private messages"
                                      " to get your key and the instructions"
-                                     " to link your account to uso !")
+                                     " to link your account to uso ! *(please"
+                                     " make sure that I can send you private messages)*")
                 await ctx.send(embed = embed)
 
             #Creating the key
             link = userlink()
-            key = link.generate_new_key(api_user[0]['user_id'], ctx.message.author.id)
+            key  = link.generate_new_key(api_user[0]['user_id'], ctx.message.author.id)
 
             #Sending the key to the user
             embed = discord.Embed(title = "Link account", colour = 0x3498db)
             embed.description= ("Please open <:osu:310362018773204992> and"
-                                " send me __**``pass {}``**__\nMy ingame name"
+                                " send me __**``{}link {}``**__\nMy ingame name"
                                 " is __UsoBot__ -> [profile](https://osu.ppy.sh/u/10406668)"
-                                "\nBe careful, this key will __expire in 10 min__".format(key))
+                                "\nBe careful, this key will __expire in 10 min__".format(self.settings["prefix"], key))
             await ctx.message.author.send(embed=embed)
 
 def setup(bot):

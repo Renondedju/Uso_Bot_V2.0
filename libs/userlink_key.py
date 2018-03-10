@@ -1,14 +1,17 @@
+from __main__ import *
+
 import time
 import string
 import random
-import memcache
 
 from libs.user import User
 
 class key(object):
 	""" Secret key object """
-	def __init__(self, size = 6, validity = 600):
-		self.__key = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
+
+	def __init__(self, size=6, validity=600):
+		self.__key = ''.join(random.SystemRandom().choice(
+			string.ascii_uppercase + string.digits) for _ in range(size))
 		self.__validity = validity
 		self.__creation_time = time.time()
 
@@ -24,45 +27,38 @@ class key(object):
 		""" Invalidating the key """
 		self.__key = None
 
-class userlink:
 
-	def __init__(self):
-		self.shared = memcache.Client(['127.0.0.1:11211'], debug=0)
-		self.keys = {} # Osu id : [Key, Discord Id]
-		self.shared.set('keys', self.keys)
+class userlink:
 
 	def generate_new_key(self, osu_id: int, discord_id: int):
 		""" Generating a new key """
 		discord_id = int(discord_id)
 
-		self.keys = self.shared.get('keys')
-		self.keys[osu_id] = [key(), discord_id]
-		self.shared.set('keys', self.keys)
+		link_dictionary[osu_id] = [key(), discord_id]
 
-		#Creating the user
+		# Creating the user
 		user = User(osu_id)
 
-		return self.keys[osu_id][0].get()
+		return link_dictionary[osu_id][0].get()
 
-	def link_account(self, osu_id: int, key: string, osu_name: string):
+	def link_account(self, osu_id: int, key: string):
 		""" Trys to link an account """
 
-		#Updating the keys cache
-		self.keys = self.shared.get('keys')
-		#Creating the user
-		user = User(osu_id)
+		# Creating the user
+		user = User(osu_id=osu_id)
+		
+		str_id = str(osu_id)
 
-		if self.keys[osu_id][0].get() == key:
+		if link_dictionary[str_id][0].get() == key:
 			# The key is right : linking user
-			user.discord_id = self.keys[osu_id][1]
+			user.discord_id = link_dictionary[str_id][1]
 			user.save_user_profile()
 			return
-			
-		elif self.keys[osu_id][0].get() == None:
+
+		elif link_dictionary[str_id][0].get() == None:
 			# This key seems to be expired
-			self.keys.pop(osu_id)
-			self.shared.set('keys', self.keys)
+			link_dictionary.pop(str_id)
 			raise ValueError("The key you are looking for expired")
 
 		else:
-			raise ValueError("This key doesn't exists")
+			raise KeyError("This key doesn't exists")

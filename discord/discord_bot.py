@@ -81,7 +81,10 @@ async def command_check(ctx):
 #On command error
 @bot.event
 async def on_command_error(ctx, error):
-    if (ctx.command):
+    if (type(error.original) == discord.errors.Forbidden):
+        print("Cannot send messages to this user (FORBIDDEN)")
+        pass
+    elif (ctx.command):
         errors = traceback.format_exception(type(error), error, error.__traceback__)
         output = ''
         for line in errors:
