@@ -11,9 +11,10 @@ from libs.user           import User
 from libs.beatmap        import Beatmap
 from libs.recommendation import REngine
 
-from commands.test import *
-from commands.help import *
-from commands.link import *
+from commands.test          import *
+from commands.help          import *
+from commands.link          import *
+from commands.irc_recommend import *
 
 def build_map(mods, bmap):
     mapinfos  =  '\x01ACTION'
@@ -76,8 +77,13 @@ def run_irc():
 
                 #checking if the message is a command
                 if (message[1]['message'].startswith(settings['prefix'])):
-                    command_text  = message[1]['message'].strip(settings['prefix']).split(' ')[0]
-                    command_param = message[1]['message'].strip(settings['prefix']).split(' ')[1]
+                    command = message[1]['message'].strip(settings['prefix']).split(' ', 1)
+                    
+                    command_text  = command[0]
+                    command_param = ""
+
+                    if (len(command) > 1):
+                        command_param = command[1]
 
                     if (command_text == 'test'):
                         irc_command_test(irc, user)
@@ -85,6 +91,8 @@ def run_irc():
                         irc_command_help(irc, user)
                     if (command_text == 'link'):
                         irc_command_link(irc, user, command_param)
+                    if (command_text == 'r'):
+                        irc_command_recommend(irc, user, command_param)
 
             #Checking buffer and sending messages if needed
             irc.check_buffer()

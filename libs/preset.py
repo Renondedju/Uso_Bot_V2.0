@@ -20,12 +20,14 @@ class Preset:
 
         self.user = player
         self.reset()
+        self.name = mode
 
         #Calling the method corresponding to the mode specified
         handler = getattr(self, 'set_%s_mode' % mode, None)
         if handler:
             
-            self.mode = mode
+            self.mode = mode.lower()
+            self.name = mode            
 
             handler_kwargs = {'power': power}
             response = handler(**handler_kwargs)
