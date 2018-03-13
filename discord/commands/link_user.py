@@ -5,7 +5,6 @@ from __main__ import *
 import json
 import discord
 import asyncio
-import memcache
 #import uvloop
 
 #asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
