@@ -38,6 +38,11 @@ class irc_command_recommend:
             bmdb = self.engine.recommendatons[i]
             mods = self.engine.mods[i]
 
+            print(mods)
+
+            if mods != "":
+                mods = '_' + mods
+
             download_link = "[https://osu.ppy.sh/beatmapsets/{0}#osu/{1}[{2} : {3}]]".format(
                 bmdb.beatmapset_id, bmdb.beatmap_id, bmdb.title, bmdb.version)
 
