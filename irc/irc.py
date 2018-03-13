@@ -113,5 +113,5 @@ class IRCbot:
 
         if (len(message) > 0 and message[0][1] == 'PRIVMSG'):
 
-            return [True, {'sender' : message[0][2], 'message' : message[0][3]}]
+            return [True, {'sender' : message[0][0].replace("!cho@ppy.sh", ""), 'message' : message[0][3]}]
         return [False, {'sender' : '', 'message' : ''}]
